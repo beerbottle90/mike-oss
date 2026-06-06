@@ -9,7 +9,9 @@ Built on [mike-oss](https://mikeoss.com) with [ArthurLegal v1.2.0](https://githu
 
 ## Windows Installer (Recommended)
 
-Download `MikeOSS-ArthurLegal-Setup-v2.0.1.exe` from the [releases page](https://github.com/beerbottle90/mike-oss/releases) or build it yourself (see [installer/README-BUILD.md](installer/README-BUILD.md)).
+**[Download MikeOSS-ArthurLegal-Setup-v2.0.1.exe](https://github.com/beerbottle90/mike-oss/releases/latest)**
+
+Or build it yourself: see [installer/README-BUILD.md](installer/README-BUILD.md).
 
 ### Before You Install
 
