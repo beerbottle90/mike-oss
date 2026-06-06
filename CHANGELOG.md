@@ -5,6 +5,21 @@ Versioning: [Semantic Versioning 2.0](https://semver.org/).
 
 ---
 
+## [2.0.2] — 2026-06-06 — *Two-Page Installer + OpenAI/Gemini Keys*
+
+### Added
+
+- **Installer page 1 — Database:** Supabase URL, Secret Key, Publishable Key (separate from API keys)
+- **Installer page 2 — AI Keys:** Anthropic, OpenAI, and Gemini API key fields; all three written to `backend/.env`
+- **Auto-generated secrets:** `DOWNLOAD_SIGNING_SECRET` and `USER_API_KEYS_ENCRYPTION_SECRET` now auto-populated from install path at install time — no longer left blank
+
+### Changed
+
+- Config page split into two pages with "Step 1 of 2 / Step 2 of 2" labels
+- Field labels now include API key source URLs (console.anthropic.com, platform.openai.com, aistudio.google.com)
+
+---
+
 ## [2.0.1] — 2026-06-06 — *Installer & .env Fix*
 
 ### Fixed

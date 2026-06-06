@@ -9,7 +9,7 @@ Built on [mike-oss](https://mikeoss.com) with [ArthurLegal v1.2.0](https://githu
 
 ## Windows Installer (Recommended)
 
-**[Download MikeOSS-ArthurLegal-Setup-v2.0.1.exe](https://github.com/beerbottle90/mike-oss/releases/latest)**
+**[Download MikeOSS-ArthurLegal-Setup-v2.0.2.exe](https://github.com/beerbottle90/mike-oss/releases/latest)**
 
 Or build it yourself: see [installer/README-BUILD.md](installer/README-BUILD.md).
 
@@ -142,7 +142,7 @@ npm run lint --prefix frontend
 
 ---
 
-## ArthurLegal Integration (v2.0.1)
+## ArthurLegal Integration (v2.0.2)
 
 This fork adds Turkish law intelligence from [ArthurLegal v1.2.0](https://github.com/beerbottle90/ArthurLegal):
 

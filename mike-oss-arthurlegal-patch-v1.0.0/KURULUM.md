@@ -1,4 +1,4 @@
-# Kurulum Rehberi — mike-oss x ArthurLegal v2.0.1
+# Kurulum Rehberi — mike-oss x ArthurLegal v2.0.2
 
 ---
 
@@ -34,7 +34,7 @@ Supabase Dashboard → **SQL Editor** → yeni sorgu aç → [`backend/schema.sq
 
 ### Adım 3 — Installer'ı Çalıştır
 
-`MikeOSS-ArthurLegal-Setup-v2.0.1.exe` dosyasına çift tıkla.
+`MikeOSS-ArthurLegal-Setup-v2.0.2.exe` dosyasına çift tıkla.
 
 Sihirbaz yukarıdaki 4 değeri sorar ve `.env` dosyalarını otomatik yazar.
 Kurulum tamamlandığında masaüstü kısayolu oluşturulur.

@@ -5,6 +5,21 @@ Semver: [Semantic Versioning 2.0](https://semver.org/lang/tr/).
 
 ---
 
+## [2.0.2] — 2026-06-06 — *Iki Sayfalı Installer + OpenAI/Gemini Anahtarları*
+
+### Eklendi
+
+- **Installer Sayfa 1 — Veritabani:** Supabase URL, Secret Key, Publishable Key
+- **Installer Sayfa 2 — AI Anahtarlari:** Anthropic, OpenAI ve Gemini API key alanlari; ucuncusu de `backend/.env`'e yaziliyor
+- **Otomatik secret uretimi:** `USER_API_KEYS_ENCRYPTION_SECRET` ve `DOWNLOAD_SIGNING_SECRET` artik kurulum sirasinda otomatik doluyor — bos birakilmiyor
+
+### Degistirildi
+
+- Konfigurasyon sayfasi "Adim 1/2 / Adim 2/2" olarak iki sayfaya bolundu
+- Alan etiketleri API key kaynak URL'lerini iceriyor
+
+---
+
 ## [2.0.1] — 2026-06-06 — *Installer ve .env Duzeltmeleri*
 
 ### Duzeltildi

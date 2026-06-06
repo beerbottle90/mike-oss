@@ -7,7 +7,7 @@ SetCompressor /SOLID lzma
 
 !define APP_NAME     "mike-oss x ArthurLegal"
 !define APP_SLUG     "MikeOSS-ArthurLegal"
-!define APP_VERSION  "2.0.1"
+!define APP_VERSION  "2.0.2"
 !define APP_PUBLISHER "beerbottle90"
 !define APP_URL      "https://github.com/beerbottle90/mike-oss"
 !define INST_KEY     "Software\${APP_SLUG}"
@@ -33,7 +33,8 @@ ShowInstDetails show
 ; Pages
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "${__FILEDIR__}\LICENSE.txt"
-Page custom ConfigPageCreate ConfigPageLeave
+Page custom SupabasePageCreate SupabasePageLeave
+Page custom ApiKeysPageCreate  ApiKeysPageLeave
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
@@ -42,91 +43,141 @@ Page custom ConfigPageCreate ConfigPageLeave
 
 !insertmacro MUI_LANGUAGE "English"
 
-; -- Config page variables ------------------------------------------------------
-Var Dialog
+; -- Variables -----------------------------------------------------------------
+; Supabase page
+Var Dialog1
 Var LblSupabaseUrl
 Var TxtSupabaseUrl
-Var LblSupabaseKey
-Var TxtSupabaseKey
+Var LblSupabaseSecret
+Var TxtSupabaseSecret
+Var LblSupabasePublishable
+Var TxtSupabasePublishable
+
+; AI keys page
+Var Dialog2
 Var LblAnthropicKey
 Var TxtAnthropicKey
-Var LblPublishableKey
-Var TxtPublishableKey
+Var LblOpenAIKey
+Var TxtOpenAIKey
+Var LblGeminiKey
+Var TxtGeminiKey
 
+; Captured values
 Var ValSupabaseUrl
-Var ValSupabaseKey
+Var ValSupabaseSecret
+Var ValSupabasePublishable
 Var ValAnthropicKey
-Var ValPublishableKey
+Var ValOpenAIKey
+Var ValGeminiKey
 
-Function ConfigPageCreate
+; ==============================================================================
+; PAGE 1 — Supabase / Database
+; ==============================================================================
+Function SupabasePageCreate
     nsDialogs::Create 1018
-    Pop $Dialog
-    ${If} $Dialog == error
+    Pop $Dialog1
+    ${If} $Dialog1 == error
         Abort
     ${EndIf}
 
-    ; Title
-    ${NSD_CreateLabel} 0 0 100% 20u "API Configuration"
+    ${NSD_CreateLabel} 0 0 100% 16u "Step 1 of 2 — Database Configuration (Supabase)"
     Pop $0
 
-    ; Supabase URL
-    ${NSD_CreateLabel} 0 30u 100% 12u "Supabase URL  (base URL only — no /rest/v1/ or trailing slash)"
+    ${NSD_CreateLabel} 0 22u 100% 10u "Supabase URL  (base URL only — no /rest/v1/ or trailing slash)"
     Pop $LblSupabaseUrl
-    ${NSD_CreateText} 0 44u 100% 14u "https://xxxxxxxxxxxxxx.supabase.co"
+    ${NSD_CreateText} 0 34u 100% 14u "https://xxxxxxxxxxxx.supabase.co"
     Pop $TxtSupabaseUrl
 
-    ; Supabase Secret Key
-    ${NSD_CreateLabel} 0 64u 100% 12u "Supabase Secret Key (service_role)"
-    Pop $LblSupabaseKey
-    ${NSD_CreatePassword} 0 78u 100% 14u ""
-    Pop $TxtSupabaseKey
+    ${NSD_CreateLabel} 0 56u 100% 10u "Supabase Secret Key  (service_role)"
+    Pop $LblSupabaseSecret
+    ${NSD_CreatePassword} 0 68u 100% 14u ""
+    Pop $TxtSupabaseSecret
 
-    ; Supabase Publishable Key
-    ${NSD_CreateLabel} 0 98u 100% 12u "Supabase Publishable Key (anon)"
-    Pop $LblPublishableKey
-    ${NSD_CreatePassword} 0 112u 100% 14u ""
-    Pop $TxtPublishableKey
+    ${NSD_CreateLabel} 0 90u 100% 10u "Supabase Publishable Key  (anon)"
+    Pop $LblSupabasePublishable
+    ${NSD_CreatePassword} 0 102u 100% 14u ""
+    Pop $TxtSupabasePublishable
 
-    ; Anthropic API Key
-    ${NSD_CreateLabel} 0 132u 100% 12u "Anthropic API Key (sk-ant-api03-...)"
-    Pop $LblAnthropicKey
-    ${NSD_CreatePassword} 0 146u 100% 14u ""
-    Pop $TxtAnthropicKey
+    ${NSD_CreateLabel} 0 124u 100% 30u "Where to find these: Supabase Dashboard -> Settings -> Data API -> Project URL / service_role / anon"
+    Pop $0
 
-    ; Note
-    ${NSD_CreateLabel} 0 170u 100% 24u "You can edit these values later in the .env files inside the install directory."
+    ${NSD_CreateLabel} 0 160u 100% 20u "You can leave all fields blank and edit the .env files manually after installation."
     Pop $0
 
     nsDialogs::Show
 FunctionEnd
 
-Function ConfigPageLeave
-    ${NSD_GetText} $TxtSupabaseUrl    $ValSupabaseUrl
-    ${NSD_GetText} $TxtSupabaseKey    $ValSupabaseKey
-    ${NSD_GetText} $TxtPublishableKey $ValPublishableKey
-    ${NSD_GetText} $TxtAnthropicKey   $ValAnthropicKey
+Function SupabasePageLeave
+    ${NSD_GetText} $TxtSupabaseUrl         $ValSupabaseUrl
+    ${NSD_GetText} $TxtSupabaseSecret      $ValSupabaseSecret
+    ${NSD_GetText} $TxtSupabasePublishable $ValSupabasePublishable
 FunctionEnd
 
-; -- Main Install Section -------------------------------------------------------
+; ==============================================================================
+; PAGE 2 — AI Provider API Keys
+; ==============================================================================
+Function ApiKeysPageCreate
+    nsDialogs::Create 1018
+    Pop $Dialog2
+    ${If} $Dialog2 == error
+        Abort
+    ${EndIf}
+
+    ${NSD_CreateLabel} 0 0 100% 16u "Step 2 of 2 — AI Provider Keys"
+    Pop $0
+
+    ${NSD_CreateLabel} 0 22u 100% 10u "Anthropic API Key  (sk-ant-api03-...)  [required for Claude models]"
+    Pop $LblAnthropicKey
+    ${NSD_CreatePassword} 0 34u 100% 14u ""
+    Pop $TxtAnthropicKey
+
+    ${NSD_CreateLabel} 0 56u 100% 10u "OpenAI API Key  (sk-...)  [optional]"
+    Pop $LblOpenAIKey
+    ${NSD_CreatePassword} 0 68u 100% 14u ""
+    Pop $TxtOpenAIKey
+
+    ${NSD_CreateLabel} 0 90u 100% 10u "Google Gemini API Key  [optional]"
+    Pop $LblGeminiKey
+    ${NSD_CreatePassword} 0 102u 100% 14u ""
+    Pop $TxtGeminiKey
+
+    ${NSD_CreateLabel} 0 124u 100% 20u "Anthropic: console.anthropic.com -> API Keys"
+    Pop $0
+    ${NSD_CreateLabel} 0 144u 100% 20u "OpenAI: platform.openai.com -> API Keys"
+    Pop $0
+    ${NSD_CreateLabel} 0 164u 100% 20u "Gemini: aistudio.google.com -> Get API Key"
+    Pop $0
+
+    nsDialogs::Show
+FunctionEnd
+
+Function ApiKeysPageLeave
+    ${NSD_GetText} $TxtAnthropicKey $ValAnthropicKey
+    ${NSD_GetText} $TxtOpenAIKey    $ValOpenAIKey
+    ${NSD_GetText} $TxtGeminiKey    $ValGeminiKey
+FunctionEnd
+
+; ==============================================================================
+; MAIN INSTALL SECTION
+; ==============================================================================
 Section "Core Application (Required)" SecMain
     SectionIn RO
 
     SetOutPath $INSTDIR
     File /r "${BUNDLE}\*"
 
-    ; Write .env files
     Call WriteEnvFiles
 
     ; Shortcuts
     CreateDirectory "$SMPROGRAMS\${APP_NAME}"
-    CreateShortcut  "$DESKTOP\${APP_NAME}.lnk" \
-                    "$INSTDIR\launcher\MikeOSS.vbs" "" \
-                    "$INSTDIR\launcher\icon.ico" 0
-    CreateShortcut  "$SMPROGRAMS\${APP_NAME}\${APP_NAME}.lnk" \
-                    "$INSTDIR\launcher\MikeOSS.vbs" "" \
-                    "$INSTDIR\launcher\icon.ico" 0
-    CreateShortcut  "$SMPROGRAMS\${APP_NAME}\Uninstall.lnk" \
-                    "$INSTDIR\Uninstall.exe"
+    CreateShortcut "$DESKTOP\${APP_NAME}.lnk" \
+                   "$INSTDIR\launcher\MikeOSS.vbs" "" \
+                   "$INSTDIR\launcher\icon.ico" 0
+    CreateShortcut "$SMPROGRAMS\${APP_NAME}\${APP_NAME}.lnk" \
+                   "$INSTDIR\launcher\MikeOSS.vbs" "" \
+                   "$INSTDIR\launcher\icon.ico" 0
+    CreateShortcut "$SMPROGRAMS\${APP_NAME}\Uninstall.lnk" \
+                   "$INSTDIR\Uninstall.exe"
 
     ; Registry
     WriteRegStr   HKLM "${INST_KEY}" "InstallDir" "$INSTDIR"
@@ -147,46 +198,50 @@ Section "Core Application (Required)" SecMain
     WriteUninstaller "$INSTDIR\Uninstall.exe"
 SectionEnd
 
-; -- Write .env Files -----------------------------------------------------------
+; ==============================================================================
+; WRITE .ENV FILES
+; ==============================================================================
 Function WriteEnvFiles
     ; Backend .env
-    FileOpen  $0 "$INSTDIR\backend\.env" w
-    FileWrite $0 "PORT=3001$\r$\n"
-    FileWrite $0 "FRONTEND_URL=http://localhost:3000$\r$\n"
-    FileWrite $0 "$\r$\n"
-    FileWrite $0 "# Supabase$\r$\n"
-    FileWrite $0 "SUPABASE_URL=$ValSupabaseUrl$\r$\n"
-    FileWrite $0 "SUPABASE_SECRET_KEY=$ValSupabaseKey$\r$\n"
-    FileWrite $0 "$\r$\n"
-    FileWrite $0 "# LLM API Keys$\r$\n"
-    FileWrite $0 "ANTHROPIC_API_KEY=$ValAnthropicKey$\r$\n"
-    FileWrite $0 "GEMINI_API_KEY=$\r$\n"
-    FileWrite $0 "OPENAI_API_KEY=$\r$\n"
-    FileWrite $0 "$\r$\n"
-    FileWrite $0 "# Storage (Cloudflare R2 or S3-compatible)$\r$\n"
-    FileWrite $0 "R2_ENDPOINT_URL=$\r$\n"
-    FileWrite $0 "R2_ACCESS_KEY_ID=$\r$\n"
-    FileWrite $0 "R2_SECRET_ACCESS_KEY=$\r$\n"
-    FileWrite $0 "R2_BUCKET_NAME=mike$\r$\n"
-    FileWrite $0 "$\r$\n"
-    FileWrite $0 "# ArthurLegal x yargi-mcp-pro (optional)$\r$\n"
-    FileWrite $0 "YARGI_MCP_ENDPOINT=https://yargi-mcp-pro-production.up.railway.app/mcp$\r$\n"
-    FileWrite $0 "YARGI_MCP_TOKEN=$\r$\n"
-    FileWrite $0 "$\r$\n"
-    FileWrite $0 "DOWNLOAD_SIGNING_SECRET=$\r$\n"
-    FileWrite $0 "USER_API_KEYS_ENCRYPTION_SECRET=$\r$\n"
-    FileWrite $0 "RESEND_API_KEY=$\r$\n"
-    FileClose $0
+    FileOpen  $R0 "$INSTDIR\backend\.env" w
+    FileWrite $R0 "PORT=3001$\r$\n"
+    FileWrite $R0 "FRONTEND_URL=http://localhost:3000$\r$\n"
+    FileWrite $R0 "$\r$\n"
+    FileWrite $R0 "# Supabase$\r$\n"
+    FileWrite $R0 "SUPABASE_URL=$ValSupabaseUrl$\r$\n"
+    FileWrite $R0 "SUPABASE_SECRET_KEY=$ValSupabaseSecret$\r$\n"
+    FileWrite $R0 "$\r$\n"
+    FileWrite $R0 "# LLM API Keys$\r$\n"
+    FileWrite $R0 "ANTHROPIC_API_KEY=$ValAnthropicKey$\r$\n"
+    FileWrite $R0 "OPENAI_API_KEY=$ValOpenAIKey$\r$\n"
+    FileWrite $R0 "GEMINI_API_KEY=$ValGeminiKey$\r$\n"
+    FileWrite $R0 "$\r$\n"
+    FileWrite $R0 "# Storage (Cloudflare R2 or S3-compatible)$\r$\n"
+    FileWrite $R0 "R2_ENDPOINT_URL=$\r$\n"
+    FileWrite $R0 "R2_ACCESS_KEY_ID=$\r$\n"
+    FileWrite $R0 "R2_SECRET_ACCESS_KEY=$\r$\n"
+    FileWrite $R0 "R2_BUCKET_NAME=mike$\r$\n"
+    FileWrite $R0 "$\r$\n"
+    FileWrite $R0 "# ArthurLegal x yargi-mcp-pro (optional)$\r$\n"
+    FileWrite $R0 "YARGI_MCP_ENDPOINT=https://yargi-mcp-pro-production.up.railway.app/mcp$\r$\n"
+    FileWrite $R0 "YARGI_MCP_TOKEN=$\r$\n"
+    FileWrite $R0 "$\r$\n"
+    FileWrite $R0 "DOWNLOAD_SIGNING_SECRET=mikeoss-dl-$INSTDIR$\r$\n"
+    FileWrite $R0 "USER_API_KEYS_ENCRYPTION_SECRET=mikeoss-enc-$INSTDIR$\r$\n"
+    FileWrite $R0 "RESEND_API_KEY=$\r$\n"
+    FileClose $R0
 
     ; Frontend .env.local
-    FileOpen  $1 "$INSTDIR\frontend\standalone\.env.local" w
-    FileWrite $1 "NEXT_PUBLIC_SUPABASE_URL=$ValSupabaseUrl$\r$\n"
-    FileWrite $1 "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=$ValPublishableKey$\r$\n"
-    FileWrite $1 "NEXT_PUBLIC_API_BASE_URL=http://localhost:3001$\r$\n"
-    FileClose $1
+    FileOpen  $R1 "$INSTDIR\frontend\standalone\.env.local" w
+    FileWrite $R1 "NEXT_PUBLIC_SUPABASE_URL=$ValSupabaseUrl$\r$\n"
+    FileWrite $R1 "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=$ValSupabasePublishable$\r$\n"
+    FileWrite $R1 "NEXT_PUBLIC_API_BASE_URL=http://localhost:3001$\r$\n"
+    FileClose $R1
 FunctionEnd
 
-; -- Uninstall -----------------------------------------------------------------
+; ==============================================================================
+; UNINSTALL
+; ==============================================================================
 Section "Uninstall"
     ExecWait '"$INSTDIR\tools\node\node.exe" "$INSTDIR\launcher\stop-servers.js"'
 
