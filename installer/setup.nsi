@@ -7,7 +7,7 @@ SetCompressor /SOLID lzma
 
 !define APP_NAME     "mike-oss x ArthurLegal"
 !define APP_SLUG     "MikeOSS-ArthurLegal"
-!define APP_VERSION  "2.0.0"
+!define APP_VERSION  "2.0.1"
 !define APP_PUBLISHER "beerbottle90"
 !define APP_URL      "https://github.com/beerbottle90/mike-oss"
 !define INST_KEY     "Software\${APP_SLUG}"
@@ -70,7 +70,7 @@ Function ConfigPageCreate
     Pop $0
 
     ; Supabase URL
-    ${NSD_CreateLabel} 0 30u 100% 12u "Supabase URL"
+    ${NSD_CreateLabel} 0 30u 100% 12u "Supabase URL  (base URL only — no /rest/v1/ or trailing slash)"
     Pop $LblSupabaseUrl
     ${NSD_CreateText} 0 44u 100% 14u "https://xxxxxxxxxxxxxx.supabase.co"
     Pop $TxtSupabaseUrl

@@ -1,4 +1,4 @@
-# mike-oss × ArthurLegal Integration Patch v2.0.0
+# mike-oss × ArthurLegal Integration Patch v2.0.1
 
 This patch adds [ArthurLegal v1.2.0](https://github.com/beerbottle90/ArthurLegal) Turkish law intelligence to [mike-oss](https://github.com/beerbottle90/mike-oss), an open-source AI legal document platform.
 
@@ -14,7 +14,7 @@ mike-oss provides the infrastructure layer (document management, multi-model AI,
 ┌────────────────────────────────────────┐
 │  mike-oss (UI + storage + multi-model) │
 │                                        │
-│  + ArthurLegal Patch v2.0.0:           │
+│  + ArthurLegal Patch v2.0.1:           │
 │    • 17 TR-law workflows               │
 │    • 22 column presets (TR + intl)     │
 │    • 15 yargi-mcp-pro endpoints        │
@@ -81,7 +81,7 @@ mike-oss-arthurlegal-patch-v1.0.0/
 
 **Turkish law (10 from v1.0.0):** Yönetim Hukuku, Damga Vergisi, Damga Vergisi Tutarı, KVKK/Kişisel Veri, Tahkim Maddesi, Rekabet Yasağı, Tazminat Tavanı, Mücbir Sebep, Fesih Bildirimi, Yaptırım Riski
 
-**New in v2.0.0 (12):** English Law, New York Law, EU/AB Hukuku, İstihdam Türü, Kıdem+İhbar, Marka Hakkı, Açık Kaynak Lisansı, Rekabet Hukuku, Enerji Lisansı, Sözleşme Değeri, İdari Para Cezası
+**New in v2.0.1 (12):** English Law, New York Law, EU/AB Hukuku, İstihdam Türü, Kıdem+İhbar, Marka Hakkı, Açık Kaynak Lisansı, Rekabet Hukuku, Enerji Lisansı, Sözleşme Değeri, İdari Para Cezası
 
 ---
 
@@ -136,7 +136,7 @@ Build a self-contained `.exe` installer (includes Node.js 20, no prerequisites):
 # From project root:
 cd installer
 .\build-win.ps1
-# → installer\dist\MikeOSS-ArthurLegal-Setup-v2.0.0.exe (~44 MB)
+# → installer\dist\MikeOSS-ArthurLegal-Setup-v2.0.1.exe (~44 MB)
 ```
 
 Requires NSIS 3.x: `winget install NSIS.NSIS`

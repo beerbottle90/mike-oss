@@ -5,6 +5,19 @@ Semver: [Semantic Versioning 2.0](https://semver.org/lang/tr/).
 
 ---
 
+## [2.0.1] — 2026-06-06 — *Installer ve .env Duzeltmeleri*
+
+### Duzeltildi
+
+- **Installer encoding**: NSIS dili English yapildi, Turkce karakterler ASCII ile degistirildi — kurulum sihirbazindaki bozuk metin sorunu giderildi
+- **Lisans sayfasi**: `schema.sql` yerine `LICENSE.txt` (MIT) gosterilecek sekilde duzeltildi
+- **Supabase URL ipucu**: config sayfasina `(base URL only — no /rest/v1/ or trailing slash)` notu eklendi
+- **Kurulu .env**: `USER_API_KEYS_ENCRYPTION_SECRET` ve `DOWNLOAD_SIGNING_SECRET` bos yaziliyordu — API key kaydini engelleyen bu sorun giderildi
+- **`SUPABASE_URL`**: sihirbazda yanlis girilen `/rest/v1/` son ekinin neden oldugu hata duzeltildi
+- **`.gitignore`**: `installer/bundle/`, `installer/dist/`, `installer/tools/` build artifact olarak eklendi
+
+---
+
 ## [2.0.0] — 2026-06-06 — *ArthurLegal v1.2.0 Tam Entegrasyon*
 
 ArthurLegal v1.2.0'ın 12 plugin, 17 yargı çevresi ve 15 MCP kurumunun tamamı entegre edildi. Windows yükleyici eklendi.

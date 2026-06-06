@@ -16,7 +16,7 @@ cd installer
 .\build-win.ps1
 ```
 
-Çıktı: `installer\dist\MikeOSS-ArthurLegal-Setup-v2.0.0.exe`
+Çıktı: `installer\dist\MikeOSS-ArthurLegal-Setup-v2.0.1.exe`
 
 ## Kurulum Akışı (Son Kullanıcı)
 
@@ -48,5 +48,5 @@ dosyalarını düzenle, uygulamayı yeniden başlat.
 | Portable Node.js 20 | ~45 MB |
 | Frontend standalone | ~40 MB |
 | Backend dist + modules | ~30 MB |
-| **Installer (.exe)** | **~60-80 MB** (LZMA sıkıştırma) |
+| **Installer (.exe)** | **~45 MB** (LZMA sikistirma) |
 | **Kurulu boyut** | **~200 MB** |

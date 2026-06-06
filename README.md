@@ -160,7 +160,7 @@ A self-contained Windows installer (`.exe`) bundles Node.js 20, the compiled bac
 ```powershell
 cd installer
 .\build-win.ps1
-# Output: installer\dist\MikeOSS-ArthurLegal-Setup-v2.0.0.exe (~45 MB)
+# Output: installer\dist\MikeOSS-ArthurLegal-Setup-v2.0.1.exe (~45 MB)
 ```
 
 The installer wizard prompts for Supabase URL, Supabase Secret Key, Supabase Publishable Key, and Anthropic API key. A desktop shortcut is created that starts both servers silently and opens `http://localhost:3000`.

@@ -5,6 +5,19 @@ Versioning: [Semantic Versioning 2.0](https://semver.org/).
 
 ---
 
+## [2.0.1] — 2026-06-06 — *Installer & .env Fix*
+
+### Fixed
+
+- **Installer encoding**: NSIS language switched to English; all Turkish characters replaced with ASCII — fixes garbled text in setup wizard
+- **License page**: replaced `schema.sql` with proper `LICENSE.txt` (MIT) in installer wizard
+- **Supabase URL hint**: config page now shows `(base URL only — no /rest/v1/ or trailing slash)` to prevent misconfiguration
+- **Installed .env**: `USER_API_KEYS_ENCRYPTION_SECRET` and `DOWNLOAD_SIGNING_SECRET` were written as empty by installer wizard — fixed; both now required for API key save to work
+- **`SUPABASE_URL`**: installer-written value had trailing `/rest/v1/` path stripped from Supabase client calls — fixed by correcting the stored URL
+- **`.gitignore`**: added `installer/bundle/`, `installer/dist/`, `installer/tools/` to exclude build artifacts
+
+---
+
 ## [2.0.0] — 2026-06-06 — *Full ArthurLegal v1.2.0 Integration*
 
 Full integration of ArthurLegal v1.2.0 across all 12 plugins, 17 jurisdictions, and 15 MCP institutions. Adds Windows installer.
