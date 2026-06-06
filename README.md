@@ -1,121 +1,136 @@
-# Mike
+# mike-oss x ArthurLegal
 
-Mike is a legal document assistant with a Next.js frontend, an Express backend, Supabase Auth/Postgres, and Cloudflare R2-compatible object storage.
+AI-powered legal document assistant — Turkish law edition.
+Built on [mike-oss](https://mikeoss.com) with [ArthurLegal v1.2.0](https://github.com/beerbottle90/ArthurLegal) integration.
 
-Website: [mikeoss.com](https://mikeoss.com)
+**Stack:** Next.js frontend · Express backend · Supabase Auth/Postgres · Cloudflare R2 storage · Claude / Gemini / OpenAI
 
-## Contents
+---
 
-- `frontend/` - Next.js application
-- `backend/` - Express API, Supabase access, document processing, and database schema
-- `backend/schema.sql` - Supabase schema for fresh databases
-- `backend/migrations/` - incremental database updates for existing deployments
+## Windows Installer (Recommended)
 
-## Prerequisites
+Download `MikeOSS-ArthurLegal-Setup-v2.0.1.exe` from the [releases page](https://github.com/beerbottle90/mike-oss/releases) or build it yourself (see [installer/README-BUILD.md](installer/README-BUILD.md)).
 
-- Node.js 20 or newer
+### Before You Install
+
+You need a **Supabase project** set up and ready. Create one free at [supabase.com](https://supabase.com).
+
+**Step 1 — Run schema.sql in Supabase**
+
+Open your Supabase project → **SQL Editor** → paste and run the contents of [`backend/schema.sql`](backend/schema.sql).
+
+This creates all required tables. Skip this and the app will fail on first use.
+
+**Step 2 — Collect your keys**
+
+| Key | Where to find it |
+|---|---|
+| **Supabase URL** | Supabase Dashboard → Settings → Data API → **Project URL** |
+| **Supabase Secret Key** | Supabase Dashboard → Settings → Data API → **service_role** key |
+| **Supabase Publishable Key** | Supabase Dashboard → Settings → Data API → **anon** key |
+| **Anthropic API Key** | [console.anthropic.com](https://console.anthropic.com) → API Keys |
+
+> **Supabase URL format:** enter only the base URL — `https://xxxx.supabase.co`
+> Do **not** add `/rest/v1/` or a trailing slash.
+
+**Step 3 — Run the installer**
+
+The wizard asks for these four values and writes the `.env` files automatically.
+After installation a desktop shortcut starts both servers and opens `http://localhost:3000`.
+
+### After Installation
+
+If you need to change any values later, edit:
+
+- `C:\Program Files\MikeOSS-ArthurLegal\backend\.env`
+- `C:\Program Files\MikeOSS-ArthurLegal\frontend\standalone\.env.local`
+
+Then restart the app via the desktop shortcut.
+
+### Troubleshooting (Installer)
+
+**"Failed to save API Key" in Account Settings**
+The backend `.env` is missing `USER_API_KEYS_ENCRYPTION_SECRET`. Open `backend\.env` and verify it has a non-empty value. If blank, paste any random 64-character hex string and restart.
+
+**App shows "Cannot GET /"**
+Backend is running on port 3000 instead of frontend. Kill all Node processes and relaunch via the desktop shortcut.
+
+**Sign-up email never arrives**
+Go to Supabase Dashboard → Authentication → Providers → Email → disable **Confirm email** for local/dev use.
+
+---
+
+## Development Setup
+
+For contributors or self-hosted deployments without the installer.
+
+### Prerequisites
+
+- Node.js 20+
 - npm
-- git
 - A Supabase project
-- A Cloudflare R2 bucket, MinIO bucket, or another S3-compatible bucket
-- At least one supported model provider API key: Anthropic, Google Gemini, or OpenAI
-- LibreOffice installed locally if you need DOC/DOCX to PDF conversion
+- A Cloudflare R2 (or S3-compatible) bucket
+- At least one AI provider key: Anthropic, Gemini, or OpenAI
 
-## Database Setup
+### Database
 
-For a new Supabase database, open the Supabase SQL editor and run:
+Open Supabase SQL Editor and run `backend/schema.sql` once for a fresh project.
 
-```sql
--- copy and run the contents of:
--- backend/schema.sql
-```
+### Environment
 
-The schema file is based on `supabase-migration.sql` and folds in the later files in `backend/migrations/`.
-
-For an existing database, do not run the full schema file over production data. Apply the incremental files in `backend/migrations/` instead.
-
-## Environment
-
-Create local env files:
-
-```bash
-touch backend/.env
-touch frontend/.env.local
-```
-
-Create `backend/.env`:
+**`backend/.env`**
 
 ```bash
 PORT=3001
 FRONTEND_URL=http://localhost:3000
-DOWNLOAD_SIGNING_SECRET=replace-with-a-random-32-byte-hex-string
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SECRET_KEY=your-supabase-service-role-key
+
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_SECRET_KEY=your-service-role-key
+
+DOWNLOAD_SIGNING_SECRET=replace-with-random-64-char-hex
+USER_API_KEYS_ENCRYPTION_SECRET=replace-with-random-64-char-hex
 
 R2_ENDPOINT_URL=https://your-account-id.r2.cloudflarestorage.com
 R2_ACCESS_KEY_ID=your-r2-access-key
 R2_SECRET_ACCESS_KEY=your-r2-secret-key
 R2_BUCKET_NAME=mike
 
-GEMINI_API_KEY=your-gemini-key
-ANTHROPIC_API_KEY=your-anthropic-key
-OPENAI_API_KEY=your-openai-key
-RESEND_API_KEY=your-resend-key
-USER_API_KEYS_ENCRYPTION_SECRET=your-long-random-secret
+ANTHROPIC_API_KEY=
+GEMINI_API_KEY=
+OPENAI_API_KEY=
+RESEND_API_KEY=
+
+# ArthurLegal MCP (optional)
+YARGI_MCP_ENDPOINT=https://yargi-mcp-pro-production.up.railway.app/mcp
+YARGI_MCP_TOKEN=
 ```
 
-Create `frontend/.env.local`:
+**`frontend/.env.local`**
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your-supabase-anon-key
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your-anon-key
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
 ```
 
-Supabase values come from the project dashboard. Use the project URL for `SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_URL`, the service role key for the backend `SUPABASE_SECRET_KEY`, and the anon/public key for `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`. If your Supabase project shows multiple key formats, use the legacy JWT-style anon and service role keys expected by the Supabase client libraries.
+> Both `DOWNLOAD_SIGNING_SECRET` and `USER_API_KEYS_ENCRYPTION_SECRET` are **required** — the app will fail to save user API keys if either is blank. Generate with: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
 
-Provider keys are only needed for the models and email features you plan to use. Model provider keys can be configured in `backend/.env` for the whole instance, or per user in **Account > Models & API Keys**. If a provider key is present in `backend/.env`, that provider is available by default and the matching browser API key field is read-only.
-
-## Install
-
-Install each app package:
+### Install & Run
 
 ```bash
 npm install --prefix backend
 npm install --prefix frontend
-```
 
-## Run Locally
-
-Start the backend:
-
-```bash
+# Terminal 1
 npm run dev --prefix backend
-```
 
-Start the main app:
-
-```bash
+# Terminal 2
 npm run dev --prefix frontend
 ```
 
 Open `http://localhost:3000`.
 
-## First Run
-
-1. Sign up in the app.
-2. If you did not set provider keys in `backend/.env`, open **Account > Models & API Keys** and add an Anthropic, Gemini, or OpenAI API key.
-3. Create or open a project and start chatting with documents.
-
-## Troubleshooting
-
-**Sign-up confirmation email never arrives.** Confirmation emails are sent by Supabase Auth, not by Mike. For local development, the simplest fix is to disable email confirmation in **Supabase > Authentication > Providers > Email**. For production, configure custom SMTP in Supabase; the built-in mailer is heavily rate-limited and may be restricted on newer projects.
-
-**The model picker shows a missing-key warning.** Add a key for that provider in **Account > Models & API Keys**, or configure the provider key in `backend/.env` and restart the backend.
-
-**DOC or DOCX conversion fails.** Install LibreOffice locally and restart the backend so document conversion commands are available on the process path.
-
-## Useful Checks
+### Build Checks
 
 ```bash
 npm run build --prefix backend
@@ -125,44 +140,25 @@ npm run lint --prefix frontend
 
 ---
 
-## ArthurLegal Integration
+## ArthurLegal Integration (v2.0.1)
 
-This fork includes the **mike-oss x ArthurLegal** integration patch (v2.0.0), adding Turkish law intelligence from [ArthurLegal v1.2.0](https://github.com/beerbottle90/ArthurLegal).
+This fork adds Turkish law intelligence from [ArthurLegal v1.2.0](https://github.com/beerbottle90/ArthurLegal):
 
-### What's Added
+- **17 workflows** — NDA triage, KVKK DSAR, M&A closing, employment, DPIA, trademark, litigation, energy, criminal defense, and more
+- **22 tabular review presets** — Turkish and international law (English Law, New York Law, EU, KVKK, arbitration, competition, IP, energy, tax)
+- **15 MCP proxy endpoints** (`/api/mcp/yargi/...`) — Mevzuat, Yargitay, Danistay, AYM, Rekabet, KVKK, BDDK, GIB, KIK, Sayistay
+- **13 Turkish practice areas** in the practice area picker
 
-- **17 ArthurLegal workflows** — NDA triage, KVKK DSAR, M&A closing checklist, ISG incident, transfer pricing, employment contract, DPIA, trademark, litigation, administrative, energy, criminal defense, and more
-- **22 tabular review column presets** — Turkish and international law (English Law, New York Law, EU, KVKK, arbitration, competition, employment, IP, energy, tax)
-- **15 MCP proxy endpoints** (`/api/mcp/yargi/...`) for yargi-mcp-pro, covering Mevzuat, Yargitay, Danistay, Anayasa Mahkemesi, Rekabet Kurumu, KVKK, BDDK, GIB, KIK, Sayistay
-- **13 Turkish practice areas** added to the practice area picker
-
-### Optional: yargi-mcp-pro
-
-Add to `backend/.env` to enable live legal database access:
-
-```bash
-YARGI_MCP_ENDPOINT=https://yargi-mcp-pro-production.up.railway.app/mcp
-YARGI_MCP_TOKEN=your-oauth-token
-```
-
-Without this token the proxy endpoints return 500 but the rest of the app works normally.
-
-See [`mike-oss-arthurlegal-patch-v1.0.0/CHANGELOG.md`](mike-oss-arthurlegal-patch-v1.0.0/CHANGELOG.md) for full version history.
+See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
 ---
 
-## Windows Installer
+## Repository Structure
 
-A self-contained Windows installer (`.exe`) bundles Node.js 20, the compiled backend, and the Next.js standalone frontend — no prerequisites required on the end-user machine.
-
-**Build the installer** (requires NSIS 3.x — `winget install NSIS.NSIS`):
-
-```powershell
-cd installer
-.\build-win.ps1
-# Output: installer\dist\MikeOSS-ArthurLegal-Setup-v2.0.1.exe (~45 MB)
 ```
-
-The installer wizard prompts for Supabase URL, Supabase Secret Key, Supabase Publishable Key, and Anthropic API key. A desktop shortcut is created that starts both servers silently and opens `http://localhost:3000`.
-
-See [`installer/README-BUILD.md`](installer/README-BUILD.md) for full details.
+frontend/          Next.js application
+backend/           Express API + Supabase + document processing
+backend/schema.sql Supabase schema (run once on a fresh project)
+installer/         Windows NSIS installer source + build script
+mike-oss-arthurlegal-patch-v1.0.0/   Patch notes and knowledge files
+```

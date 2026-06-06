@@ -1,173 +1,179 @@
-# Kurulum Rehberi — mike-oss × ArthurLegal Entegrasyon Paketi v1.0.0
-
-Bu paket, [mike-oss](https://github.com/beerbottle90/mike-oss) legal platform'una
-[ArthurLegal v1.2.0](https://github.com/beerbottle90/ArthurLegal) Türk hukuku zekasını ekler.
+# Kurulum Rehberi — mike-oss x ArthurLegal v2.0.1
 
 ---
 
-## Ön Koşullar
+## Yöntem 1 — Windows Installer (Önerilen)
 
-- Çalışan bir mike-oss kurulumu (bkz. [mike-oss README](../README.md))
+### Gereksinimler
+
+Kurulumdan önce bir **Supabase projesi** oluşturman gerekiyor (ücretsiz): [supabase.com](https://supabase.com)
+
+---
+
+### Adım 1 — Supabase Veritabanı Şemasını Kur
+
+Supabase Dashboard → **SQL Editor** → yeni sorgu aç → [`backend/schema.sql`](../backend/schema.sql) dosyasının tüm içeriğini yapıştır → **Run**
+
+> Bu adımı atlama. Tablo yoksa uygulama ilk kullanımda hata verir.
+
+---
+
+### Adım 2 — API Anahtarlarını Topla
+
+| Değer | Nereden Alınır |
+|---|---|
+| **Supabase URL** | Supabase Dashboard → Settings → Data API → **Project URL** |
+| **Supabase Secret Key** | Supabase Dashboard → Settings → Data API → **service_role** anahtarı |
+| **Supabase Publishable Key** | Supabase Dashboard → Settings → Data API → **anon** anahtarı |
+| **Anthropic API Key** | [console.anthropic.com](https://console.anthropic.com) → API Keys |
+
+> **Supabase URL formatı:** yalnızca ana adresi gir — `https://xxxx.supabase.co`
+> Sonuna `/rest/v1/` veya `/` **ekleme**.
+
+---
+
+### Adım 3 — Installer'ı Çalıştır
+
+`MikeOSS-ArthurLegal-Setup-v2.0.1.exe` dosyasına çift tıkla.
+
+Sihirbaz yukarıdaki 4 değeri sorar ve `.env` dosyalarını otomatik yazar.
+Kurulum tamamlandığında masaüstü kısayolu oluşturulur.
+
+---
+
+### Adım 4 — Uygulamayı Başlat
+
+Masaüstündeki **mike-oss x ArthurLegal** kısayoluna çift tıkla.
+Sunucular arka planda başlar, `http://localhost:3000` otomatik açılır.
+
+---
+
+### Kurulum Sonrası Yapılandırma
+
+Değerleri sonradan değiştirmek istersen:
+
+```
+C:\Program Files\MikeOSS-ArthurLegal\backend\.env
+C:\Program Files\MikeOSS-ArthurLegal\frontend\standalone\.env.local
+```
+
+Düzenledikten sonra masaüstü kısayolunu tekrar çalıştır (uygulama zaten açıksa önce kapat).
+
+---
+
+### Sorun Giderme (Installer)
+
+**"Failed to save API Key" hatası**
+`backend\.env` dosyasında `USER_API_KEYS_ENCRYPTION_SECRET=` satırı boş bırakılmış.
+Aşağıdaki gibi rastgele bir değer üret ve doldur, ardından restart et:
+```
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+**Ekran "Cannot GET /" gösteriyor**
+Backend port 3000'e bağlanmış, frontend çalışmıyor.
+Tüm Node process'lerini kapat (Görev Yöneticisi → node.exe) ve kısayoldan yeniden başlat.
+
+**Kayıt onay e-postası gelmiyor**
+Supabase Dashboard → Authentication → Providers → Email → **Confirm email** kapat.
+
+**"Failed to save Anthropic API Key" hâlâ devam ediyor**
+Supabase'de `user_api_keys` tablosu yok demektir — Adım 1'deki SQL'i çalıştır.
+
+---
+
+## Yöntem 2 — Geliştirici Kurulumu (Kaynak Koddan)
+
+### Gereksinimler
+
 - Node.js 20+, npm
-- (Opsiyonel) yargi-mcp-pro OAuth token — TR mevzuat/yargı entegrasyonu için
+- Supabase projesi
+- Cloudflare R2 veya S3-uyumlu depolama
+- En az bir AI sağlayıcı anahtarı (Anthropic, Gemini veya OpenAI)
 
----
+### Veritabanı
 
-## Adım 1 — Yeni Workflow'ları Ekle
+Supabase SQL Editor → `backend/schema.sql` içeriğini çalıştır (bir kez).
 
-`backend/src/lib/builtinWorkflows.ts` dosyasını düzenle:
+### Ortam Değişkenleri
 
-```typescript
-// Dosyanın başına ekle:
-import { ARTHURLEGAL_WORKFLOWS } from "./builtinWorkflows.arthurlegal";
-
-// BUILTIN_WORKFLOWS dizisinin sonuna spread et:
-export const BUILTIN_WORKFLOWS = [
-    // ... mevcut workflow'lar ...
-    ...ARTHURLEGAL_WORKFLOWS,
-];
-```
-
-Kaynak dosyayı kopyala:
+**`backend/.env`**
 
 ```bash
-cp mike-oss-arthurlegal-patch-v1.0.0/patches/backend/builtinWorkflows.arthurlegal.ts \
-   backend/src/lib/builtinWorkflows.arthurlegal.ts
-```
+PORT=3001
+FRONTEND_URL=http://localhost:3000
 
----
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_SECRET_KEY=your-service-role-key
 
-## Adım 2 — TR Column Preset'leri Ekle
+# İkisi de zorunlu — boş bırakma
+DOWNLOAD_SIGNING_SECRET=64-karakter-rastgele-hex
+USER_API_KEYS_ENCRYPTION_SECRET=64-karakter-rastgele-hex
 
-`frontend/src/app/components/tabular/columnPresets.ts` dosyasını düzenle:
+R2_ENDPOINT_URL=https://hesap-id.r2.cloudflarestorage.com
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET_NAME=mike
 
-```typescript
-// Dosyanın başına ekle:
-import { ARTHURLEGAL_PROMPT_PRESETS } from "./columnPresets.arthurlegal";
+ANTHROPIC_API_KEY=
+GEMINI_API_KEY=
+OPENAI_API_KEY=
+RESEND_API_KEY=
 
-// PROMPT_PRESETS dizisini genişlet:
-export const PROMPT_PRESETS: ColumnPreset[] = [
-    // ... mevcut preset'ler ...
-    ...ARTHURLEGAL_PROMPT_PRESETS,
-];
-```
-
-Kaynak dosyayı kopyala:
-
-```bash
-cp mike-oss-arthurlegal-patch-v1.0.0/patches/frontend/columnPresets.arthurlegal.ts \
-   frontend/src/app/components/tabular/columnPresets.arthurlegal.ts
-```
-
----
-
-## Adım 3 — Pratik Alanları Güncelle
-
-`frontend/src/app/components/workflows/practices.ts` dosyasını değiştir:
-
-```bash
-cp mike-oss-arthurlegal-patch-v1.0.0/patches/frontend/practices.arthurlegal.ts \
-   frontend/src/app/components/workflows/practices.ts
-```
-
----
-
-## Adım 4 — (Opsiyonel) yargi-mcp-pro MCP Proxy
-
-**4a. Router dosyasını kopyala:**
-
-```bash
-cp mike-oss-arthurlegal-patch-v1.0.0/patches/backend/mcp-proxy.arthurlegal.ts \
-   backend/src/routes/mcp-proxy.arthurlegal.ts
-```
-
-**4b. `backend/src/index.ts` dosyasına router'ı ekle:**
-
-```typescript
-import yargiMcpRouter from "./routes/mcp-proxy.arthurlegal";
-// ...
-app.use("/api/mcp", yargiMcpRouter);
-```
-
-**4c. `backend/.env` dosyasına ekle:**
-
-```bash
+# Opsiyonel — yargi-mcp-pro TR hukuk veritabanı
 YARGI_MCP_ENDPOINT=https://yargi-mcp-pro-production.up.railway.app/mcp
-YARGI_MCP_TOKEN=<OAuth access token>
+YARGI_MCP_TOKEN=
 ```
 
-> **Token nasıl alınır?**
-> 1. [claude.ai](https://claude.ai) → Proje oluştur → Connectors → Custom MCP ekle
-> 2. Endpoint: `https://yargi-mcp-pro-production.up.railway.app/mcp`
-> 3. OAuth akışını tamamla → access token'ı kopyala → `.env`'e yapıştır
-
----
-
-## Adım 5 — (Opsiyonel) ArthurLegal System Prompt Entegrasyonu
-
-mike-oss chat'inde ArthurLegal hukuki zekasını etkinleştirmek için:
-
-**Seçenek A — Per-project system message:**
-
-`backend/src/routes/projectChat.ts` veya `chat.ts` içinde system message'a ekle:
-
-```typescript
-import fs from "fs";
-const arthurLegalPrompt = fs.readFileSync(
-    "mike-oss-arthurlegal-patch-v1.0.0/knowledge/arthurlegal-corporate-v1.2.0-system-prompt.md",
-    "utf-8"
-);
-// messages dizisine system role olarak ekle:
-const systemMessage = { role: "system", content: arthurLegalPrompt };
-```
-
-**Seçenek B — Workflow prompt prefix:**
-
-Her workflow çalıştırıldığında, workflow prompt'unun başına ArthurLegal context'ini ekle.
-
----
-
-## Adım 6 — Build ve Test
+**`frontend/.env.local`**
 
 ```bash
-# Backend derle
-npm run build --prefix backend
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your-anon-key
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
+```
 
-# Frontend derle
-npm run build --prefix frontend
+Rastgele secret üretmek için:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
 
-# Lint
-npm run lint --prefix frontend
+### Kurulum ve Çalıştırma
 
-# Geliştirme modunda çalıştır
+```bash
+npm install --prefix backend
+npm install --prefix frontend
+
+# Terminal 1
 npm run dev --prefix backend
+
+# Terminal 2
 npm run dev --prefix frontend
 ```
+
+`http://localhost:3000` aç.
 
 ---
 
 ## Doğrulama
 
-1. `http://localhost:3000` aç
-2. Workflows sekmesine git → "NDA Triaj" görünüyor mu? ✓
-3. Tabular Review → yeni kolon ekle → "Damga Vergisi" yazdığında preset geliyor mu? ✓
-4. Practices dropdown'ında "KVKK / Gizlilik" görünüyor mu? ✓
-5. (MCP kurulduysa) `POST /api/mcp/yargi/health` → sunucu sağlık yanıtı geliyor mu? ✓
+1. `http://localhost:3000` → giriş yap
+2. **Workflows** → "NDA Triaj" görünüyor mu? ✓
+3. **Tabular Review** → kolon ekle → "Damga Vergisi" preset geliyor mu? ✓
+4. **Account > Models & API Keys** → Anthropic key kaydediliyor mu? ✓
+5. Practice alanı dropdown → "KVKK / Gizlilik" görünüyor mu? ✓
 
 ---
 
-## Sorun Giderme
+## YARGI_MCP_TOKEN Hakkında
 
-| Sorun | Çözüm |
-|---|---|
-| TypeScript derleme hatası | `builtinWorkflows.arthurlegal.ts` import'unu kontrol et |
-| Workflow prompt'u görünmüyor | Backend restart et |
-| MCP 500 hatası | `YARGI_MCP_TOKEN` env değişkenini kontrol et |
-| Column preset çalışmıyor | `columnPresets.ts`'deki spread operatörü kontrol et |
+Bu alan opsiyoneldir. Boş bırakırsan `/api/mcp/yargi/...` endpoint'leri çalışmaz ama uygulamanın geri kalanı (workflow, tabular review, sohbet) normal çalışır.
+
+Token, yargi-mcp-pro servisine erişim için OAuth 2.0 Bearer token'dır. Erişim için servis sağlayıcısıyla iletişime geç.
 
 ---
 
 ## Destek
 
-- mike-oss issues: https://github.com/beerbottle90/mike-oss/issues
+- Sorunlar: https://github.com/beerbottle90/mike-oss/issues
 - ArthurLegal: https://github.com/beerbottle90/ArthurLegal
