@@ -21,13 +21,16 @@ cd installer
 ## Kurulum Akışı (Son Kullanıcı)
 
 1. `MikeOSS-ArthurLegal-Setup.exe` indir ve çalıştır
-2. Kurulum sihirbazında API anahtarlarını gir:
-   - **Supabase URL** (örn. `https://xxxx.supabase.co`)
+2. **Sayfa 1 — Veritabanı:**
+   - **Supabase URL** (örn. `https://xxxx.supabase.co` — sonda `/` veya `/rest/v1/` olmasın)
    - **Supabase Secret Key** (`sb_secret_...`)
    - **Supabase Publishable Key** (`sb_publishable_...`)
-   - **Anthropic API Key** (`sk-ant-api03-...`)
-3. Kurulum dizinini seç (varsayılan: `C:\Program Files\MikeOSS-ArthurLegal`)
-4. "Yükle" → masaüstü kısayolu oluşturulur
+3. **Sayfa 2 — AI Anahtarları:**
+   - **Anthropic API Key** (`sk-ant-api03-...`) — zorunlu
+   - **OpenAI API Key** (`sk-...`) — opsiyonel
+   - **Google Gemini API Key** — opsiyonel
+4. Kurulum dizinini seç (varsayılan: `C:\Program Files\MikeOSS-ArthurLegal`)
+5. "Yükle" → masaüstü kısayolu oluşturulur; gizli değerler otomatik üretilir
 
 ## Kullanım
 

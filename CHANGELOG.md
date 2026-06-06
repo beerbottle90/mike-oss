@@ -113,5 +113,7 @@ Initial ArthurLegal x mike-oss integration. See [`mike-oss-arthurlegal-patch-v1.
 
 ---
 
+[2.0.2]: https://github.com/beerbottle90/mike-oss/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/beerbottle90/mike-oss/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/beerbottle90/mike-oss/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/beerbottle90/mike-oss/tree/ddd4a8d

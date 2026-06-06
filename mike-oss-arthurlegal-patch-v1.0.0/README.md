@@ -16,14 +16,23 @@ AI destekli hukuki döküman asistanı — Türk hukuku sürümü.
 
 ### 3. Kurulum sihirbazında gir
 
+**Sayfa 1 — Veritabanı (zorunlu)**
+
 | Alan | Nereden alınır |
 |---|---|
 | **Supabase URL** | Dashboard → Settings → Data API → **Project URL** |
 | **Secret Key** | Dashboard → Settings → Data API → **service_role** |
 | **Publishable Key** | Dashboard → Settings → Data API → **anon** |
-| **Anthropic API Key** | [console.anthropic.com](https://console.anthropic.com) → API Keys |
 
 > Supabase URL'yi `/rest/v1/` veya `/` **olmadan** gir: `https://xxxx.supabase.co`
+
+**Sayfa 2 — AI Anahtarları (en az biri zorunlu)**
+
+| Alan | Nereden alınır |
+|---|---|
+| **Anthropic API Key** | [console.anthropic.com](https://console.anthropic.com) → API Keys |
+| **OpenAI API Key** *(opsiyonel)* | [platform.openai.com](https://platform.openai.com) → API Keys |
+| **Google Gemini API Key** *(opsiyonel)* | [aistudio.google.com](https://aistudio.google.com) → Get API Key |
 
 ### 4. Başlat
 
@@ -43,8 +52,8 @@ Kurulum biter, masaüstü kısayolu oluşur. Çift tıkla → uygulama açılır
 ## Sorun Giderme
 
 **"Failed to save API Key"**
-`C:\Program Files\MikeOSS-ArthurLegal\backend\.env` dosyasını aç,
-`USER_API_KEYS_ENCRYPTION_SECRET=` satırına herhangi bir uzun rastgele metin gir, sonra restart.
+v2.0.2+ ile bu hata otomatik olarak önlenmiştir — installer `USER_API_KEYS_ENCRYPTION_SECRET` değerini kendisi üretir.
+Yine de görüyorsan: `C:\Program Files\MikeOSS-ArthurLegal\backend\.env` dosyasını aç, `USER_API_KEYS_ENCRYPTION_SECRET=` satırının boş olmadığını doğrula. Boşsa `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` ile üret, yapıştır, restart et.
 
 **Uygulama "Cannot GET /" gösteriyor**
 Görev Yöneticisi'nde tüm `node.exe` süreçlerini sonlandır, kısayoldan yeniden başlat.

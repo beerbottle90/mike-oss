@@ -25,19 +25,29 @@ This creates all required tables. Skip this and the app will fail on first use.
 
 **Step 2 — Collect your keys**
 
+**Page 1 — Database (required)**
+
 | Key | Where to find it |
 |---|---|
 | **Supabase URL** | Supabase Dashboard → Settings → Data API → **Project URL** |
 | **Supabase Secret Key** | Supabase Dashboard → Settings → Data API → **service_role** key |
 | **Supabase Publishable Key** | Supabase Dashboard → Settings → Data API → **anon** key |
-| **Anthropic API Key** | [console.anthropic.com](https://console.anthropic.com) → API Keys |
 
 > **Supabase URL format:** enter only the base URL — `https://xxxx.supabase.co`
 > Do **not** add `/rest/v1/` or a trailing slash.
 
+**Page 2 — AI Provider Keys (at least one required)**
+
+| Key | Where to find it |
+|---|---|
+| **Anthropic API Key** | [console.anthropic.com](https://console.anthropic.com) → API Keys |
+| **OpenAI API Key** *(optional)* | [platform.openai.com](https://platform.openai.com) → API Keys |
+| **Google Gemini API Key** *(optional)* | [aistudio.google.com](https://aistudio.google.com) → Get API Key |
+
 **Step 3 — Run the installer**
 
-The wizard asks for these four values and writes the `.env` files automatically.
+The wizard collects these six values across two pages and writes the `.env` files automatically.
+Internal secrets (`USER_API_KEYS_ENCRYPTION_SECRET`, `DOWNLOAD_SIGNING_SECRET`) are auto-generated — you don't need to set them.
 After installation a desktop shortcut starts both servers and opens `http://localhost:3000`.
 
 ### After Installation
@@ -52,7 +62,7 @@ Then restart the app via the desktop shortcut.
 ### Troubleshooting (Installer)
 
 **"Failed to save API Key" in Account Settings**
-The backend `.env` is missing `USER_API_KEYS_ENCRYPTION_SECRET`. Open `backend\.env` and verify it has a non-empty value. If blank, paste any random 64-character hex string and restart.
+This should not occur with v2.0.2+ — the installer auto-generates `USER_API_KEYS_ENCRYPTION_SECRET`. If it does, open `C:\Program Files\MikeOSS-ArthurLegal\backend\.env` and verify `USER_API_KEYS_ENCRYPTION_SECRET=` has a non-empty value. If blank, generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` and restart.
 
 **App shows "Cannot GET /"**
 Backend is running on port 3000 instead of frontend. Kill all Node processes and relaunch via the desktop shortcut.

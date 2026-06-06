@@ -20,15 +20,24 @@ Supabase Dashboard → **SQL Editor** → yeni sorgu aç → [`backend/schema.sq
 
 ### Adım 2 — API Anahtarlarını Topla
 
+**Sayfa 1 — Veritabanı (zorunlu)**
+
 | Değer | Nereden Alınır |
 |---|---|
 | **Supabase URL** | Supabase Dashboard → Settings → Data API → **Project URL** |
 | **Supabase Secret Key** | Supabase Dashboard → Settings → Data API → **service_role** anahtarı |
 | **Supabase Publishable Key** | Supabase Dashboard → Settings → Data API → **anon** anahtarı |
-| **Anthropic API Key** | [console.anthropic.com](https://console.anthropic.com) → API Keys |
 
 > **Supabase URL formatı:** yalnızca ana adresi gir — `https://xxxx.supabase.co`
 > Sonuna `/rest/v1/` veya `/` **ekleme**.
+
+**Sayfa 2 — AI Anahtarları (en az biri zorunlu)**
+
+| Değer | Nereden Alınır |
+|---|---|
+| **Anthropic API Key** | [console.anthropic.com](https://console.anthropic.com) → API Keys |
+| **OpenAI API Key** *(opsiyonel)* | [platform.openai.com](https://platform.openai.com) → API Keys |
+| **Google Gemini API Key** *(opsiyonel)* | [aistudio.google.com](https://aistudio.google.com) → Get API Key |
 
 ---
 
@@ -36,7 +45,8 @@ Supabase Dashboard → **SQL Editor** → yeni sorgu aç → [`backend/schema.sq
 
 `MikeOSS-ArthurLegal-Setup-v2.0.2.exe` dosyasına çift tıkla.
 
-Sihirbaz yukarıdaki 4 değeri sorar ve `.env` dosyalarını otomatik yazar.
+Sihirbaz yukarıdaki 6 değeri **2 sayfa halinde** sorar ve `.env` dosyalarını otomatik yazar.
+`USER_API_KEYS_ENCRYPTION_SECRET` ve `DOWNLOAD_SIGNING_SECRET` otomatik üretilir — ayrıca girmen gerekmez.
 Kurulum tamamlandığında masaüstü kısayolu oluşturulur.
 
 ---
@@ -64,8 +74,8 @@ Düzenledikten sonra masaüstü kısayolunu tekrar çalıştır (uygulama zaten 
 ### Sorun Giderme (Installer)
 
 **"Failed to save API Key" hatası**
-`backend\.env` dosyasında `USER_API_KEYS_ENCRYPTION_SECRET=` satırı boş bırakılmış.
-Aşağıdaki gibi rastgele bir değer üret ve doldur, ardından restart et:
+v2.0.2+ ile installer `USER_API_KEYS_ENCRYPTION_SECRET` değerini otomatik üretir, bu hata oluşmamalıdır.
+Yine de görüyorsan: `C:\Program Files\MikeOSS-ArthurLegal\backend\.env` dosyasını aç, `USER_API_KEYS_ENCRYPTION_SECRET=` satırının dolu olduğunu doğrula. Boşsa aşağıdaki komutla üret, yapıştır, restart et:
 ```
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
