@@ -1,11 +1,11 @@
-; mike-oss × ArthurLegal — NSIS Installer Script
-; NSIS 3.x gerektirir: https://nsis.sourceforge.io
-; Build: makensis setup.nsi  veya build-win.ps1 aracılığıyla
+; mike-oss x ArthurLegal - NSIS Installer Script
+; NSIS 3.x required: https://nsis.sourceforge.io
+; Build: makensis setup.nsi  or via build-win.ps1
 
 Unicode True
 SetCompressor /SOLID lzma
 
-!define APP_NAME     "mike-oss × ArthurLegal"
+!define APP_NAME     "mike-oss x ArthurLegal"
 !define APP_SLUG     "MikeOSS-ArthurLegal"
 !define APP_VERSION  "2.0.0"
 !define APP_PUBLISHER "beerbottle90"
@@ -20,7 +20,7 @@ InstallDirRegKey HKLM "${INST_KEY}" "InstallDir"
 RequestExecutionLevel admin
 ShowInstDetails show
 
-; ── Modern UI ─────────────────────────────────────────────────────────────
+; -- Modern UI ------------------------------------------------------------------
 !include "MUI2.nsh"
 !include "nsDialogs.nsh"
 !include "LogicLib.nsh"
@@ -30,9 +30,9 @@ ShowInstDetails show
 !define MUI_ICON   "${__FILEDIR__}\resources\icon.ico"
 !define MUI_UNICON "${__FILEDIR__}\resources\icon.ico"
 
-; Sayfalar
+; Pages
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "${BUNDLE}\backend\schema.sql"
+!insertmacro MUI_PAGE_LICENSE "${__FILEDIR__}\LICENSE.txt"
 Page custom ConfigPageCreate ConfigPageLeave
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
@@ -40,9 +40,9 @@ Page custom ConfigPageCreate ConfigPageLeave
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 
-!insertmacro MUI_LANGUAGE "Turkish"
+!insertmacro MUI_LANGUAGE "English"
 
-; ── Konfigürasyon sayfası değişkenleri ────────────────────────────────────
+; -- Config page variables ------------------------------------------------------
 Var Dialog
 Var LblSupabaseUrl
 Var TxtSupabaseUrl
@@ -65,25 +65,24 @@ Function ConfigPageCreate
         Abort
     ${EndIf}
 
-    ; Başlık
-    ${NSD_CreateLabel} 0 0 100% 20u "API Yapılandırması"
+    ; Title
+    ${NSD_CreateLabel} 0 0 100% 20u "API Configuration"
     Pop $0
-    SetCtlColors $0 0x1a1a2e TRANSPARENT
 
     ; Supabase URL
-    ${NSD_CreateLabel} 0 30u 100% 12u "Supabase URL (https://xxxx.supabase.co)"
+    ${NSD_CreateLabel} 0 30u 100% 12u "Supabase URL"
     Pop $LblSupabaseUrl
     ${NSD_CreateText} 0 44u 100% 14u "https://xxxxxxxxxxxxxx.supabase.co"
     Pop $TxtSupabaseUrl
 
     ; Supabase Secret Key
-    ${NSD_CreateLabel} 0 64u 100% 12u "Supabase Secret Key (sb_secret_...)"
+    ${NSD_CreateLabel} 0 64u 100% 12u "Supabase Secret Key (service_role)"
     Pop $LblSupabaseKey
     ${NSD_CreatePassword} 0 78u 100% 14u ""
     Pop $TxtSupabaseKey
 
     ; Supabase Publishable Key
-    ${NSD_CreateLabel} 0 98u 100% 12u "Supabase Publishable Key (sb_publishable_...)"
+    ${NSD_CreateLabel} 0 98u 100% 12u "Supabase Publishable Key (anon)"
     Pop $LblPublishableKey
     ${NSD_CreatePassword} 0 112u 100% 14u ""
     Pop $TxtPublishableKey
@@ -94,8 +93,8 @@ Function ConfigPageCreate
     ${NSD_CreatePassword} 0 146u 100% 14u ""
     Pop $TxtAnthropicKey
 
-    ; Bilgi notu
-    ${NSD_CreateLabel} 0 170u 100% 24u "Not: Bu değerleri şimdi girmezseniz kurulum tamamlandıktan sonra $INSTDIR\backend\.env dosyasını düzenleyebilirsiniz."
+    ; Note
+    ${NSD_CreateLabel} 0 170u 100% 24u "You can edit these values later in the .env files inside the install directory."
     Pop $0
 
     nsDialogs::Show
@@ -108,17 +107,17 @@ Function ConfigPageLeave
     ${NSD_GetText} $TxtAnthropicKey   $ValAnthropicKey
 FunctionEnd
 
-; ── Ana Kurulum Bölümü ─────────────────────────────────────────────────────
-Section "Ana Uygulama (Zorunlu)" SecMain
+; -- Main Install Section -------------------------------------------------------
+Section "Core Application (Required)" SecMain
     SectionIn RO
 
     SetOutPath $INSTDIR
     File /r "${BUNDLE}\*"
 
-    ; .env dosyalarını oluştur
+    ; Write .env files
     Call WriteEnvFiles
 
-    ; Launcher kısayolları
+    ; Shortcuts
     CreateDirectory "$SMPROGRAMS\${APP_NAME}"
     CreateShortcut  "$DESKTOP\${APP_NAME}.lnk" \
                     "$INSTDIR\launcher\MikeOSS.vbs" "" \
@@ -126,13 +125,13 @@ Section "Ana Uygulama (Zorunlu)" SecMain
     CreateShortcut  "$SMPROGRAMS\${APP_NAME}\${APP_NAME}.lnk" \
                     "$INSTDIR\launcher\MikeOSS.vbs" "" \
                     "$INSTDIR\launcher\icon.ico" 0
-    CreateShortcut  "$SMPROGRAMS\${APP_NAME}\Kaldır.lnk" \
+    CreateShortcut  "$SMPROGRAMS\${APP_NAME}\Uninstall.lnk" \
                     "$INSTDIR\Uninstall.exe"
 
     ; Registry
     WriteRegStr   HKLM "${INST_KEY}" "InstallDir" "$INSTDIR"
     WriteRegStr   HKLM "${INST_KEY}" "Version"    "${APP_VERSION}"
-    WriteRegStr   HKLM "${UNINST_KEY}" "DisplayName"    "${APP_NAME}"
+    WriteRegStr   HKLM "${UNINST_KEY}" "DisplayName"     "${APP_NAME}"
     WriteRegStr   HKLM "${UNINST_KEY}" "DisplayVersion"  "${APP_VERSION}"
     WriteRegStr   HKLM "${UNINST_KEY}" "Publisher"       "${APP_PUBLISHER}"
     WriteRegStr   HKLM "${UNINST_KEY}" "UninstallString" "$INSTDIR\Uninstall.exe"
@@ -141,7 +140,6 @@ Section "Ana Uygulama (Zorunlu)" SecMain
     WriteRegDWORD HKLM "${UNINST_KEY}" "NoModify"        1
     WriteRegDWORD HKLM "${UNINST_KEY}" "NoRepair"        1
 
-    ; Kurulu boyut
     ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
     IntFmt $0 "0x%08X" $0
     WriteRegDWORD HKLM "${UNINST_KEY}" "EstimatedSize" "$0"
@@ -149,7 +147,7 @@ Section "Ana Uygulama (Zorunlu)" SecMain
     WriteUninstaller "$INSTDIR\Uninstall.exe"
 SectionEnd
 
-; ── .env Dosyalarını Yaz ──────────────────────────────────────────────────
+; -- Write .env Files -----------------------------------------------------------
 Function WriteEnvFiles
     ; Backend .env
     FileOpen  $0 "$INSTDIR\backend\.env" w
@@ -165,13 +163,13 @@ Function WriteEnvFiles
     FileWrite $0 "GEMINI_API_KEY=$\r$\n"
     FileWrite $0 "OPENAI_API_KEY=$\r$\n"
     FileWrite $0 "$\r$\n"
-    FileWrite $0 "# Storage (Cloudflare R2 veya S3-uyumlu)$\r$\n"
+    FileWrite $0 "# Storage (Cloudflare R2 or S3-compatible)$\r$\n"
     FileWrite $0 "R2_ENDPOINT_URL=$\r$\n"
     FileWrite $0 "R2_ACCESS_KEY_ID=$\r$\n"
     FileWrite $0 "R2_SECRET_ACCESS_KEY=$\r$\n"
     FileWrite $0 "R2_BUCKET_NAME=mike$\r$\n"
     FileWrite $0 "$\r$\n"
-    FileWrite $0 "# ArthurLegal × yargi-mcp-pro (opsiyonel)$\r$\n"
+    FileWrite $0 "# ArthurLegal x yargi-mcp-pro (optional)$\r$\n"
     FileWrite $0 "YARGI_MCP_ENDPOINT=https://yargi-mcp-pro-production.up.railway.app/mcp$\r$\n"
     FileWrite $0 "YARGI_MCP_TOKEN=$\r$\n"
     FileWrite $0 "$\r$\n"
@@ -188,9 +186,8 @@ Function WriteEnvFiles
     FileClose $1
 FunctionEnd
 
-; ── Kaldırma ──────────────────────────────────────────────────────────────
+; -- Uninstall -----------------------------------------------------------------
 Section "Uninstall"
-    ; Çalışan sunucuları durdur
     ExecWait '"$INSTDIR\tools\node\node.exe" "$INSTDIR\launcher\stop-servers.js"'
 
     RMDir /r "$INSTDIR\backend"
