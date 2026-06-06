@@ -1,4 +1,5 @@
 import type { ColumnFormat } from "../shared/types";
+import { ARTHURLEGAL_PROMPT_PRESETS } from "./columnPresets.arthurlegal";
 
 export interface ColumnPreset {
     name: string;
@@ -87,6 +88,7 @@ export const PROMPT_PRESETS: ColumnPreset[] = [
         format: "yes_no",
         prompt: "Does this agreement contain a force majeure clause?",
     },
+    ...ARTHURLEGAL_PROMPT_PRESETS,
 ];
 
 export function getPresetConfig(

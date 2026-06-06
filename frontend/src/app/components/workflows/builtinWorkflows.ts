@@ -1,4 +1,5 @@
 import type { MikeWorkflow } from "../shared/types";
+import { ARTHURLEGAL_BUILT_IN_WORKFLOWS } from "./builtinWorkflows.arthurlegal";
 
 export const BUILT_IN_WORKFLOWS: MikeWorkflow[] = [
     {
@@ -1241,6 +1242,7 @@ export const BUILT_IN_WORKFLOWS: MikeWorkflow[] = [
             },
         ],
     },
+    ...ARTHURLEGAL_BUILT_IN_WORKFLOWS,
 ];
 
 export const BUILT_IN_IDS = new Set(BUILT_IN_WORKFLOWS.map((wf) => wf.id));

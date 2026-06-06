@@ -1,3 +1,5 @@
+import { ARTHURLEGAL_WORKFLOWS } from "./builtinWorkflows.arthurlegal";
+
 export const BUILTIN_WORKFLOWS: { id: string; title: string; prompt_md: string }[] = [
     {
         id: "builtin-cp-checklist",
@@ -73,4 +75,5 @@ export const BUILTIN_WORKFLOWS: { id: string; title: string; prompt_md: string }
             "15. **Governing Law & Dispute Resolution** — Applicable law, forum, arbitration or litigation, and any mandatory escalation steps\n\n" +
             "Generate the summary as a downloadable Word document.",
     },
+    ...ARTHURLEGAL_WORKFLOWS,
 ];
