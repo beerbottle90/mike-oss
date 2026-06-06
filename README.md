@@ -122,3 +122,47 @@ npm run build --prefix backend
 npm run build --prefix frontend
 npm run lint --prefix frontend
 ```
+
+---
+
+## ArthurLegal Integration
+
+This fork includes the **mike-oss x ArthurLegal** integration patch (v2.0.0), adding Turkish law intelligence from [ArthurLegal v1.2.0](https://github.com/beerbottle90/ArthurLegal).
+
+### What's Added
+
+- **17 ArthurLegal workflows** — NDA triage, KVKK DSAR, M&A closing checklist, ISG incident, transfer pricing, employment contract, DPIA, trademark, litigation, administrative, energy, criminal defense, and more
+- **22 tabular review column presets** — Turkish and international law (English Law, New York Law, EU, KVKK, arbitration, competition, employment, IP, energy, tax)
+- **15 MCP proxy endpoints** (`/api/mcp/yargi/...`) for yargi-mcp-pro, covering Mevzuat, Yargitay, Danistay, Anayasa Mahkemesi, Rekabet Kurumu, KVKK, BDDK, GIB, KIK, Sayistay
+- **13 Turkish practice areas** added to the practice area picker
+
+### Optional: yargi-mcp-pro
+
+Add to `backend/.env` to enable live legal database access:
+
+```bash
+YARGI_MCP_ENDPOINT=https://yargi-mcp-pro-production.up.railway.app/mcp
+YARGI_MCP_TOKEN=your-oauth-token
+```
+
+Without this token the proxy endpoints return 500 but the rest of the app works normally.
+
+See [`mike-oss-arthurlegal-patch-v1.0.0/CHANGELOG.md`](mike-oss-arthurlegal-patch-v1.0.0/CHANGELOG.md) for full version history.
+
+---
+
+## Windows Installer
+
+A self-contained Windows installer (`.exe`) bundles Node.js 20, the compiled backend, and the Next.js standalone frontend — no prerequisites required on the end-user machine.
+
+**Build the installer** (requires NSIS 3.x — `winget install NSIS.NSIS`):
+
+```powershell
+cd installer
+.\build-win.ps1
+# Output: installer\dist\MikeOSS-ArthurLegal-Setup-v2.0.0.exe (~45 MB)
+```
+
+The installer wizard prompts for Supabase URL, Supabase Secret Key, Supabase Publishable Key, and Anthropic API key. A desktop shortcut is created that starts both servers silently and opens `http://localhost:3000`.
+
+See [`installer/README-BUILD.md`](installer/README-BUILD.md) for full details.

@@ -1,8 +1,8 @@
-# mike-oss × ArthurLegal Integration Patch v1.0.0
+# mike-oss × ArthurLegal Integration Patch v2.0.0
 
 This patch adds [ArthurLegal v1.2.0](https://github.com/beerbottle90/ArthurLegal) Turkish law intelligence to [mike-oss](https://github.com/beerbottle90/mike-oss), an open-source AI legal document platform.
 
-**Turkish installation guide:** [KURULUM.md](./KURULUM.md)
+**Turkish installation guide:** [KURULUM.md](./KURULUM.md) | **Version history:** [CHANGELOG.md](./CHANGELOG.md)
 
 ---
 
@@ -14,11 +14,12 @@ mike-oss provides the infrastructure layer (document management, multi-model AI,
 ┌────────────────────────────────────────┐
 │  mike-oss (UI + storage + multi-model) │
 │                                        │
-│  + ArthurLegal Patch v1.0.0:           │
-│    • 5 TR-law workflows                │
-│    • 10 TR column presets              │
-│    • yargi-mcp-pro proxy               │
+│  + ArthurLegal Patch v2.0.0:           │
+│    • 17 TR-law workflows               │
+│    • 22 column presets (TR + intl)     │
+│    • 15 yargi-mcp-pro endpoints        │
 │    • System prompt injection           │
+│    • Windows installer (.exe)          │
 └────────────────────────────────────────┘
          ↕ (optional full ArthurLegal)
 ┌────────────────────────────────────────┐
@@ -52,54 +53,65 @@ mike-oss-arthurlegal-patch-v1.0.0/
 
 ---
 
-## New Workflows (5)
+## Workflows (17)
 
-| ID | Title | ArthurLegal Skill |
+| ID | Title | Plugin |
 |---|---|---|
-| `arthurlegal-nda-triage-tr` | NDA Triaj — TR Hukuku (GREEN/YELLOW/RED) | `/commercial-legal:nda-review` |
-| `arthurlegal-kvkk-dsar` | KVKK DSAR Yanıtı — m.11 + m.28 | `/privacy-legal:dsar-response` |
-| `arthurlegal-isg-incident` | İSG Olay Müdahalesi 0–72 Saat Runbook | `/litigation-legal:isg-incident-response` |
-| `arthurlegal-closing-checklist-tr` | TR M&A Kapanış Kontrol Listesi | `/corporate-legal:closing-checklist` |
-| `arthurlegal-transfer-pricing` | Transfer Fiyatlandırması Risk Taraması | `/tax-legal:transfer-pricing-review` |
+| `arthurlegal-nda-triage-tr` | NDA Triaj — GREEN/YELLOW/RED | commercial |
+| `arthurlegal-msa-review-tr` | MSA / Çerçeve Sözleşme İncelemesi | commercial |
+| `arthurlegal-closing-checklist-tr` | TR M&A Kapanış Kontrol Listesi | corporate |
+| `arthurlegal-employment-contract-tr` | İstihdam Sözleşmesi İncelemesi | employment |
+| `arthurlegal-termination-package-tr` | Fesih Paketi (Kıdem + İhbar) | employment |
+| `arthurlegal-isg-incident` | İSG Olay Müdahalesi 0–72 Saat | employment |
+| `arthurlegal-isg-risk-tr` | İSG Risk Değerlendirmesi | employment |
+| `arthurlegal-kvkk-dsar` | KVKK DSAR Yanıtı m.11+m.28 | privacy |
+| `arthurlegal-kvkk-dpia-tr` | KVKK DPIA (6698 m.12 + GDPR) | privacy |
+| `arthurlegal-kvkk-cross-border-tr` | KVKK Yurt Dışı Aktarım Analizi | privacy |
+| `arthurlegal-rekabet-compliance-tr` | Rekabet Hukuku Uyum Kontrolü | regulatory |
+| `arthurlegal-marka-tescil-tr` | Marka Tescil Stratejisi | ip |
+| `arthurlegal-icra-strategy-tr` | İcra Stratejisi (İİK) | litigation |
+| `arthurlegal-iyuk-itiraz-tr` | İdari İtiraz Dilekçesi (İYUK) | administrative |
+| `arthurlegal-transfer-pricing` | Transfer Fiyatlandırması Risk Taraması | tax |
+| `arthurlegal-epdk-lisans-tr` | EPDK Lisans Başvurusu | energy |
+| `arthurlegal-cmk-48-saat` | CMK 48 Saat Ceza Savunma Protokolü | criminal-defense |
 
 ---
 
-## New Column Presets (10)
+## Column Presets (22)
 
-| Preset | Match Pattern | Format | TR Law Basis |
-|---|---|---|---|
-| Yönetim Hukuku | `yönetim hukuku` | text | TBK m.24 |
-| Damga Vergisi | `damga vergisi` | text | DVK Bant IV |
-| Damga Vergisi Tutarı | `damga vergisi tutar` | text | DVK hesaplama |
-| KVKK / Kişisel Veri | `kvkk`, `kişisel veri` | text | 6698 m.5/6/9 |
-| Tahkim Maddesi | `tahkim`, `istac`, `icc` | text | TTK m.5/A |
-| Rekabet Yasağı | `rekabet yasağı`, `non-compete` | text | TTK m.51, TBK m.444 |
-| Tazminat Tavanı | `tazminat tavan`, `liability cap` | text | TBK m.115 |
-| Mücbir Sebep (TBK) | `mücbir sebep`, `force majeure` | text | TBK m.136 |
-| Fesih Bildirimi | `fesih`, `termination notice` | text | 4857 m.17 |
-| Yaptırım Riski | `yaptırım`, `sanction`, `ofac` | text | OFAC/AB/UK/BM |
+**Turkish law (10 from v1.0.0):** Yönetim Hukuku, Damga Vergisi, Damga Vergisi Tutarı, KVKK/Kişisel Veri, Tahkim Maddesi, Rekabet Yasağı, Tazminat Tavanı, Mücbir Sebep, Fesih Bildirimi, Yaptırım Riski
+
+**New in v2.0.0 (12):** English Law, New York Law, EU/AB Hukuku, İstihdam Türü, Kıdem+İhbar, Marka Hakkı, Açık Kaynak Lisansı, Rekabet Hukuku, Enerji Lisansı, Sözleşme Değeri, İdari Para Cezası
 
 ---
 
-## New Practice Areas (10 added)
+## Practice Areas (13 Turkish added)
 
-Turkish-law specific practice areas added to the existing 18 english-language options:
-
-`Ticari Sözleşme (TR)` · `Kurumsal / M&A (TR)` · `İş Hukuku (TR)` · `KVKK / Gizlilik` · `Regülasyon (TR)` · `FSH / IP (TR)` · `İdare Hukuku (TR)` · `Vergi Hukuku (TR)` · `Enerji Hukuku (TR)` · `Sermaye Piyasası (TR)`
+`Ticari Sözleşme (TR)` · `Kurumsal / M&A (TR)` · `İş Hukuku (TR)` · `KVKK / Gizlilik` · `Regülasyon (TR)` · `FSH / IP (TR)` · `İdare Hukuku (TR)` · `Vergi Hukuku (TR)` · `Enerji Hukuku (TR)` · `Sermaye Piyasası (TR)` · `Dava Yönetimi (TR)` · `Ceza Hukuku (TR)` · `Büro Operasyonları (TR)`
 
 ---
 
-## MCP Proxy (Optional)
+## MCP Proxy (Optional) — 15 Endpoints
 
-The `mcp-proxy.arthurlegal.ts` router provides access to [yargi-mcp-pro](https://yargi-mcp-pro-production.up.railway.app/mcp), a unified MCP server covering 15 Turkish legal institutions:
+Provides access to [yargi-mcp-pro](https://yargi-mcp-pro-production.up.railway.app/mcp), covering 15 Turkish legal institutions:
 
-| Endpoint | Tool | Coverage |
-|---|---|---|
-| `POST /api/mcp/yargi/mevzuat/search` | `search_mevzuat` | Turkish legislation full text |
-| `POST /api/mcp/yargi/mevzuat/get` | `get_mevzuat_document` | Law text by article |
-| `POST /api/mcp/yargi/kararlar/search` | `search_bedesten_unified` | Yargıtay · Danıştay · AYM · KVKK · Rekabet · Sayıştay · BDDK · KİK · GİB |
-| `POST /api/mcp/yargi/kararlar/get` | `get_bedesten_document_markdown` | Full decision text |
-| `POST /api/mcp/yargi/health` | `check_government_servers_health` | Server availability check |
+| Endpoint | Coverage |
+|---|---|
+| `POST /api/mcp/yargi/mevzuat/search` | Mevzuat full-text search |
+| `POST /api/mcp/yargi/mevzuat/get` | Full law text by article |
+| `POST /api/mcp/yargi/mevzuat/search-within` | Search within a specific law |
+| `POST /api/mcp/yargi/kararlar/search` | Yargıtay · Danıştay · AYM · KVKK · Rekabet · Sayıştay · BDDK · KİK · GİB |
+| `POST /api/mcp/yargi/kararlar/get` | Full decision text |
+| `POST /api/mcp/yargi/kararlar/semantic` | Semantic search across all courts |
+| `POST /api/mcp/yargi/anayasa/search` | Constitutional Court decisions |
+| `POST /api/mcp/yargi/rekabet/search` | Competition Authority decisions |
+| `POST /api/mcp/yargi/kvkk/search` | KVKK Board decisions |
+| `POST /api/mcp/yargi/bddk/search` | Banking Regulation (BDDK) |
+| `POST /api/mcp/yargi/gib/search` | Revenue Administration (GIB) |
+| `POST /api/mcp/yargi/kik/search` | Public Procurement (KIK) |
+| `POST /api/mcp/yargi/sayistay/search` | Court of Accounts (Sayıştay) |
+| `POST /api/mcp/yargi/research-guide` | Structured legal research guide |
+| `POST /api/mcp/yargi/health` | Server availability check |
 
 Requires `YARGI_MCP_TOKEN` in `backend/.env`. See [KURULUM.md](./KURULUM.md) for OAuth setup.
 
@@ -116,17 +128,32 @@ For the full ArthurLegal system prompts with complete skill libraries, see the [
 
 ---
 
+## Windows Installer
+
+Build a self-contained `.exe` installer (includes Node.js 20, no prerequisites):
+
+```powershell
+# From project root:
+cd installer
+.\build-win.ps1
+# → installer\dist\MikeOSS-ArthurLegal-Setup-v2.0.0.exe (~44 MB)
+```
+
+Requires NSIS 3.x: `winget install NSIS.NSIS`
+
+---
+
 ## What This Patch Does NOT Include
 
 This patch is an additive bridge — it does not replace the full ArthurLegal experience:
 
 | Feature | This Patch | Full ArthurLegal |
 |---|---|---|
-| Turkish law workflows | 5 core workflows | 70+ skills across 10 plugins |
+| Turkish law workflows | 17 core workflows | 70+ skills across 12 plugins |
 | Reference files | System prompt only | 42+ jurisdiction reference guides |
 | Automation agents | — | 7 scheduled agents |
 | Skill command system | — | `/plugin:skill` command routing |
-| Full MCP integration | Proxy endpoints | yargi-mcp-pro + OpenCaseLaw.ch + CourtListener |
+| Full MCP integration | 15 proxy endpoints | yargi-mcp-pro + OpenCaseLaw.ch + CourtListener |
 
 For the full ArthurLegal experience, deploy [ArthurLegal v1.2.0](https://github.com/beerbottle90/ArthurLegal) on claude.ai Projects or Claude Code alongside mike-oss.
 

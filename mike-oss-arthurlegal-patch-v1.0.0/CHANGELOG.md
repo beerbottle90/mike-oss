@@ -5,6 +5,58 @@ Semver: [Semantic Versioning 2.0](https://semver.org/lang/tr/).
 
 ---
 
+## [2.0.0] — 2026-06-06 — *ArthurLegal v1.2.0 Tam Entegrasyon*
+
+ArthurLegal v1.2.0'ın 12 plugin, 17 yargı çevresi ve 15 MCP kurumunun tamamı entegre edildi. Windows yükleyici eklendi.
+
+### Eklendi
+
+**Workflow'lar (5 → 17):**
+- MSA / Çerçeve Sözleşme İncelemesi (TBK ticari)
+- İstihdam Sözleşmesi İncelemesi (4857 + TBK)
+- Fesih Paketi (4857 m.17-21, Kıdem + İhbar)
+- İSG Risk Değerlendirmesi (6331 + ISO 45001)
+- KVKK DPIA (6698 m.12 + GDPR Mad.35)
+- KVKK Yurt Dışı Aktarım Analizi (m.9)
+- Rekabet Hukuku Uyum Kontrolü (4054)
+- Marka Tescil Stratejisi (556 KHK + EUIPO)
+- İcra Stratejisi (2004 İİK)
+- İdari İtiraz Dilekçesi (2577 İYUK)
+- EPDK Lisans Başvurusu (6446 EK)
+- CMK 48 Saat Ceza Savunma Protokolü
+
+**Column presets (10 → 22):**
+- İngiliz Hukuku yetki maddesi
+- New York Hukuku yetki maddesi
+- AB/EU Hukuku yetki maddesi
+- İstihdam türü sınıflandırıcı
+- Kıdem + ihbar süresi çıkarıcı
+- Marka hakkı maddesi
+- Açık kaynak lisans uyumluluk kontrolü
+- Rekabet yasağı tanımlayıcı
+- Enerji lisans türü (EPDK)
+- Sözleşme değeri / bedel çıkarıcı
+- İdari para cezası tavanı
+
+**MCP proxy endpoint'leri (5 → 15):**
+- Mevzuat içinde arama, Anayasa Mahkemesi, Rekabet Kurumu, KVKK Kurulu, BDDK, GİB, KİK, Sayıştay, semantik karar arama, araştırma rehberi
+
+**Pratik alanlar (+3 TR):**
+- Dava Yönetimi (TR), Ceza Hukuku (TR), Büro Operasyonları (TR)
+
+**Windows yükleyici:**
+- `installer/setup.nsi` — NSIS 3.x MUI2 yükleyici, nsDialogs yapılandırma sayfası
+- `installer/build-win.ps1` — build scripti (portable Node.js 20, frontend + backend build)
+- `installer/launcher/` — VBScript sessiz başlatıcı + PowerShell sunucu yönetimi
+- Çıktı: `installer/dist/MikeOSS-ArthurLegal-Setup-v2.0.0.exe` (~44 MB)
+
+### Düzeltildi
+
+- `backend/tsconfig.json`: `moduleResolution` kullanımdan kalkmış `"node"` → `"node10"` olarak değiştirildi
+- `.vscode/settings.json`: workspace TypeScript 5.9.3 için `typescript.tsdk` eklendi
+
+---
+
 ## [1.0.0] — 2026-06-06 — *İlk Entegrasyon Sürümü*
 
 mike-oss (OSS AI legal platform) ile ArthurLegal v1.2.0 (Türk hukuku asistan paketi) entegrasyonunun ilk sürümü.

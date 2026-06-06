@@ -73,9 +73,8 @@ Function ConfigPageCreate
     ; Supabase URL
     ${NSD_CreateLabel} 0 30u 100% 12u "Supabase URL (https://xxxx.supabase.co)"
     Pop $LblSupabaseUrl
-    ${NSD_CreateText} 0 44u 100% 14u ""
+    ${NSD_CreateText} 0 44u 100% 14u "https://xxxxxxxxxxxxxx.supabase.co"
     Pop $TxtSupabaseUrl
-    ${NSD_SetPlaceholderText} $TxtSupabaseUrl "https://xxxxxxxxxxxxxx.supabase.co"
 
     ; Supabase Secret Key
     ${NSD_CreateLabel} 0 64u 100% 12u "Supabase Secret Key (sb_secret_...)"

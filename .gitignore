@@ -16,3 +16,8 @@ next-env.d.ts
 .DS_Store
 .vercel
 coverage
+
+# Installer build artifacts
+installer/bundle/
+installer/dist/
+installer/tools/
