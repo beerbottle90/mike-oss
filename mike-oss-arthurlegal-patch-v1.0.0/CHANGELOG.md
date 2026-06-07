@@ -5,6 +5,15 @@ Semver: [Semantic Versioning 2.0](https://semver.org/lang/tr/).
 
 ---
 
+## [2.0.3] — 2026-06-07 — *yargi-mcp Router Düzeltmesi*
+
+### Düzeltildi
+
+- **yargi-mcp proxy erişilemiyor**: `mcp-proxy.arthurlegal.ts` router yazılmıştı ancak `backend/src/index.ts`'e hiç eklenmemişti — tüm `/api/mcp/yargi/...` endpointleri 404 döndürüyordu. Import ve `app.use("/api/mcp", yargiMcpRouter)` eklenerek düzeltildi.
+- **TypeScript yerel kurulu değildi**: `npm run build` global `tsc` olmadan başarısız oluyordu. `typescript` devDependency olarak eklendi.
+
+---
+
 ## [2.0.2] — 2026-06-06 — *Iki Sayfalı Installer + OpenAI/Gemini Anahtarları*
 
 ### Eklendi

@@ -1,4 +1,4 @@
-# Kurulum Rehberi — mike-oss x ArthurLegal v2.0.2
+# Kurulum Rehberi — mike-oss x ArthurLegal v2.0.3
 
 ---
 
@@ -43,7 +43,7 @@ Supabase Dashboard → **SQL Editor** → yeni sorgu aç → [`backend/schema.sq
 
 ### Adım 3 — Installer'ı Çalıştır
 
-`MikeOSS-ArthurLegal-Setup-v2.0.2.exe` dosyasına çift tıkla.
+`MikeOSS-ArthurLegal-Setup-v2.0.3.exe` dosyasına çift tıkla.
 
 Sihirbaz yukarıdaki 6 değeri **2 sayfa halinde** sorar ve `.env` dosyalarını otomatik yazar.
 `USER_API_KEYS_ENCRYPTION_SECRET` ve `DOWNLOAD_SIGNING_SECRET` otomatik üretilir — ayrıca girmen gerekmez.

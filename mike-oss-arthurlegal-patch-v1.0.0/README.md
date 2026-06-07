@@ -8,7 +8,7 @@ AI destekli hukuki döküman asistanı — Türk hukuku sürümü.
 
 ### 1. İndir
 
-**[MikeOSS-ArthurLegal-Setup-v2.0.2.exe — Releases](https://github.com/beerbottle90/mike-oss/releases/latest)**
+**[MikeOSS-ArthurLegal-Setup-v2.0.3.exe — Releases](https://github.com/beerbottle90/mike-oss/releases/latest)**
 
 ### 2. Supabase Hazırla (ücretsiz)
 
@@ -67,7 +67,7 @@ Detaylı kurulum: [KURULUM.md](./KURULUM.md)
 
 ## Sürüm Geçmişi
 
-[CHANGELOG.md](./CHANGELOG.md) · Güncel sürüm: **v2.0.2**
+[CHANGELOG.md](./CHANGELOG.md) · Güncel sürüm: **v2.0.3**
 
 ## Lisans
 

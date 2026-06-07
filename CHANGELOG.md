@@ -5,6 +5,15 @@ Versioning: [Semantic Versioning 2.0](https://semver.org/).
 
 ---
 
+## [2.0.3] — 2026-06-07 — *yargi-mcp Router Fix*
+
+### Fixed
+
+- **yargi-mcp proxy unreachable**: `mcp-proxy.arthurlegal.ts` was written but never imported or mounted in `index.ts` — all `/api/mcp/yargi/...` endpoints returned 404. Fixed by adding the import and `app.use("/api/mcp", yargiMcpRouter)`.
+- **TypeScript not installed locally**: `npm run build` failed without a global `tsc`. Added `typescript` as a devDependency in `backend/package.json`.
+
+---
+
 ## [2.0.2] — 2026-06-06 — *Two-Page Installer + OpenAI/Gemini Keys*
 
 ### Added
@@ -113,6 +122,7 @@ Initial ArthurLegal x mike-oss integration. See [`mike-oss-arthurlegal-patch-v1.
 
 ---
 
+[2.0.3]: https://github.com/beerbottle90/mike-oss/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/beerbottle90/mike-oss/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/beerbottle90/mike-oss/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/beerbottle90/mike-oss/compare/v1.0.0...v2.0.0

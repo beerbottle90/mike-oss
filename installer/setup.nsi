@@ -7,7 +7,7 @@ SetCompressor /SOLID lzma
 
 !define APP_NAME     "mike-oss x ArthurLegal"
 !define APP_SLUG     "MikeOSS-ArthurLegal"
-!define APP_VERSION  "2.0.2"
+!define APP_VERSION  "2.0.3"
 !define APP_PUBLISHER "beerbottle90"
 !define APP_URL      "https://github.com/beerbottle90/mike-oss"
 !define INST_KEY     "Software\${APP_SLUG}"

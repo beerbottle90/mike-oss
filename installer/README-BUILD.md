@@ -16,7 +16,7 @@ cd installer
 .\build-win.ps1
 ```
 
-Çıktı: `installer\dist\MikeOSS-ArthurLegal-Setup-v2.0.2.exe`
+Çıktı: `installer\dist\MikeOSS-ArthurLegal-Setup-v2.0.3.exe`
 
 ## Kurulum Akışı (Son Kullanıcı)
 
