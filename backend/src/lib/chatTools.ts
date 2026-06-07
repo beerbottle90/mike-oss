@@ -1020,8 +1020,7 @@ export async function generateDocx(
             const normalizedTable = normalizeTable(section.table);
             if (normalizedTable) {
                 const { headers, rows } = normalizedTable;
-                const colCount = headers.length;
-                const tableRows: InstanceType<typeof TableRow>[] = [];
+const tableRows: InstanceType<typeof TableRow>[] = [];
                 // Header row
                 tableRows.push(
                     new TableRow({

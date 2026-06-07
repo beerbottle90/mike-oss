@@ -268,7 +268,7 @@ workflowsRouter.delete("/:workflowId", requireAuth, asyncRoute(async (req, res) 
 }));
 
 // GET /workflows/hidden
-workflowsRouter.get("/hidden", requireAuth, asyncRoute(async (req, res) => {
+workflowsRouter.get("/hidden", requireAuth, asyncRoute(async (_req, res) => {
   const userId = res.locals.userId as string;
   const db = createServerSupabase();
   const { data, error } = await db

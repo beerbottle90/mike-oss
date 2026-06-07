@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { requireAuth } from "../middleware/auth";
 import { createServerSupabase } from "../lib/supabase";
-import { createClient } from "@supabase/supabase-js";
 import {
   attachActiveVersionPaths,
   attachLatestVersionNumbers,
@@ -24,7 +23,7 @@ function normalizeDocumentFilename(nextName: unknown, currentName: string) {
 }
 
 // GET /projects
-projectsRouter.get("/", requireAuth, async (req, res) => {
+projectsRouter.get("/", requireAuth, async (_req, res) => {
   const userId = res.locals.userId as string;
   const userEmail = res.locals.userEmail as string;
   const db = createServerSupabase();
@@ -847,7 +846,7 @@ async function countPdfPages(buf: ArrayBuffer): Promise<number | null> {
 async function extractStructureTree(
   content: ArrayBuffer,
   fileType: string,
-  filename: string,
+  _filename: string,
 ): Promise<unknown[] | null> {
   try {
     if (fileType === "pdf") {

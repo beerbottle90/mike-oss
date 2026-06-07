@@ -1550,53 +1550,6 @@ async function generateChatTitle(
     }
 }
 
-function buildTabularContext(
-    columns: any[],
-    docs: any[],
-    cells: any[],
-): string {
-    const lines: string[] = [
-        "# Tabular Review Context\n",
-        "Columns (0-based index):",
-    ];
-    columns.forEach((col: any, i: number) =>
-        lines.push(`- COL:${i} → "${col.name}"`),
-    );
-    lines.push("", "Documents (0-based row index):");
-    docs.forEach((doc: any, i: number) =>
-        lines.push(`- ROW:${i} → "${doc.filename}"`),
-    );
-    lines.push("", "## Table Data\n");
-    lines.push(`| Document | ${columns.map((c: any) => c.name).join(" | ")} |`);
-    lines.push(`|---|${columns.map(() => "---").join("|")}|`);
-    docs.forEach((doc: any, rowIdx: number) => {
-        const rowCells = columns.map((col: any, colPos: number) => {
-            const cell = cells.find(
-                (c: any) =>
-                    c.document_id === doc.id && c.column_index === col.index,
-            ) as any;
-            if (
-                !cell ||
-                cell.status === "pending" ||
-                cell.status === "generating"
-            ) {
-                return `(pending) [[COL:${colPos}||ROW:${rowIdx}]]`;
-            }
-            if (cell.status === "error") {
-                return `(error) [[COL:${colPos}||ROW:${rowIdx}]]`;
-            }
-            const content = parseCellContent(cell.content);
-            const summary = content?.summary?.trim() || "(not yet generated)";
-            const truncated =
-                summary.length > 400 ? summary.slice(0, 400) + "…" : summary;
-            return `${truncated} [[COL:${colPos}||ROW:${rowIdx}]]`;
-        });
-        lines.push(
-            `| ROW:${rowIdx} ${doc.filename} | ${rowCells.join(" | ")} |`,
-        );
-    });
-    return lines.join("\n");
-}
 
 type CellResult = {
     summary: string;

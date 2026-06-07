@@ -28,7 +28,7 @@ export const documentsRouter = Router();
 const ALLOWED_TYPES = new Set(["pdf", "docx", "doc"]);
 
 // GET /single-documents
-documentsRouter.get("/", requireAuth, async (req, res) => {
+documentsRouter.get("/", requireAuth, async (_req, res) => {
   const userId = res.locals.userId as string;
   const db = createServerSupabase();
   const { data, error } = await db

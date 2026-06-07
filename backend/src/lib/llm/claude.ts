@@ -18,7 +18,7 @@ type NativeMessage = {
     content: string | ContentBlock[];
 };
 
-const MAX_TOKENS = 16384;
+const MAX_TOKENS = 64000;
 
 function apiKey(override?: string | null): string {
     const key = override?.trim() || process.env.ANTHROPIC_API_KEY?.trim() || "";
