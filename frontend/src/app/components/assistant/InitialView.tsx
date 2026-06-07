@@ -80,6 +80,7 @@ export function InitialView({ onSubmit }: InitialViewProps) {
                         onCancel={() => {}}
                         isLoading={false}
                         onProjectsClick={() => setProjectModalOpen(true)}
+                        storageKey="assistant-new-chat-draft"
                     />
 
                     <div className="text-center">

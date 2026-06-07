@@ -4,6 +4,7 @@ import {
     useState,
     useCallback,
     useRef,
+    useEffect,
     forwardRef,
     useImperativeHandle,
 } from "react";
@@ -44,6 +45,8 @@ interface Props {
     onProjectsClick?: () => void;
     projectName?: string;
     projectCmNumber?: string | null;
+    /** When set, draft text is persisted to sessionStorage under this key */
+    storageKey?: string;
 }
 
 export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput(
@@ -56,10 +59,16 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput(
         onProjectsClick,
         projectName,
         projectCmNumber,
+        storageKey,
     }: Props,
     ref,
 ) {
-    const [value, setValue] = useState("");
+    const [value, setValue] = useState(() => {
+        if (storageKey && typeof window !== "undefined") {
+            return sessionStorage.getItem(storageKey) ?? "";
+        }
+        return "";
+    });
     const [attachedDocs, setAttachedDocs] = useState<MikeDocument[]>([]);
     const [selectedWorkflow, setSelectedWorkflow] = useState<{
         id: string;
@@ -73,6 +82,15 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput(
     const [workflowModalOpen, setWorkflowModalOpen] = useState(false);
     const [apiKeyModalProvider, setApiKeyModalProvider] =
         useState<ModelProvider | null>(null);
+
+    useEffect(() => {
+        if (value && textareaRef.current) {
+            const el = textareaRef.current;
+            el.style.height = "auto";
+            el.style.height = `${el.scrollHeight}px`;
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useImperativeHandle(ref, () => ({
         addDoc: (doc: MikeDocument) => {
@@ -104,7 +122,12 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput(
     );
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setValue(e.target.value);
+        const next = e.target.value;
+        setValue(next);
+        if (storageKey) {
+            if (next) sessionStorage.setItem(storageKey, next);
+            else sessionStorage.removeItem(storageKey);
+        }
         const el = e.target;
         el.style.height = "auto";
         el.style.height = `${el.scrollHeight}px`;
@@ -118,6 +141,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput(
             return;
         }
         setValue("");
+        if (storageKey) sessionStorage.removeItem(storageKey);
         if (textareaRef.current) {
             textareaRef.current.style.height = "auto";
         }
