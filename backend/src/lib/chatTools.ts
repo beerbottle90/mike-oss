@@ -133,6 +133,17 @@ When a user message begins with a [Workflow: <title> (id: <id>)] marker, the use
 DOCUMENT NAMING IN PROSE:
 The chat-local labels ("doc-0", "doc-1", "doc-N", …) are internal handles for tool calls and citation JSON ONLY. NEVER write them in your prose response or in any text the user reads — not in body text, not in headings, not in lists, not in tool-activity descriptions. The user does not know what "doc-0" means and seeing it is jarring. When referring to a document in prose, always use its filename (e.g. "the NDA draft" or "nda_v1.docx"). This rule applies to every word streamed back to the user; the only places "doc-N" identifiers are allowed are inside tool-call arguments and inside the <CITATIONS> JSON block's "doc_id" field.
 
+YARGI-MCP TOOLS (Türk Hukuku Veritabanı):
+When YARGI_MCP_TOKEN is configured, you have access to live Turkish legal database tools:
+- search_court_decisions: Search Yargıtay/Danıştay/other Turkish court decisions by keyword, unit, or date range.
+- get_court_decision: Retrieve full text of a court decision by documentId (from search results).
+- search_legislation: Search Turkish legislation (kanun, yönetmelik, tebliğ) by query, name, or number.
+- get_legislation: Retrieve full text of a specific law/regulation by mevzuat_id.
+- search_within_legislation: Search within a specific law for specific provisions.
+- semantic_search_decisions: Semantic/natural language search for court decisions.
+
+When a user asks about a Turkish court decision, a specific Yargıtay/Danıştay ruling, or Turkish legislation, ALWAYS use these tools to retrieve real, up-to-date information. Never fabricate case numbers, decision dates, or decision text. If the tool returns no results, say so explicitly and suggest alternative search terms.
+
 GENERAL GUIDANCE:
 - Be precise and professional
 - Cite the specific document and quote when making claims about document content
@@ -257,6 +268,212 @@ export const WORKFLOW_TOOLS = [
                     },
                 },
                 required: ["workflow_id"],
+            },
+        },
+    },
+];
+
+// ---------------------------------------------------------------------------
+// Yargi-MCP tools (Turkish legal database — Yargıtay/Danıştay/Mevzuat)
+// ---------------------------------------------------------------------------
+
+async function callYargiMcp(
+    toolName: string,
+    input: Record<string, unknown>,
+): Promise<unknown> {
+    const token = process.env.YARGI_MCP_TOKEN ?? "";
+    const endpoint =
+        process.env.YARGI_MCP_ENDPOINT ??
+        "https://yargi-mcp-pro-production.up.railway.app/mcp";
+    if (!token) throw new Error("YARGI_MCP_TOKEN is not configured");
+
+    const body = {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "tools/call",
+        params: { name: toolName, arguments: input },
+    };
+    const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json, text/event-stream",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`yargi-mcp ${res.status}: ${await res.text()}`);
+
+    const ct = res.headers.get("content-type") ?? "";
+    let json: { result?: unknown; error?: { message: string } };
+    if (ct.includes("text/event-stream")) {
+        const text = await res.text();
+        const dataLine = text
+            .split("\n")
+            .find((l) => l.startsWith("data:") && l.includes('"jsonrpc"'));
+        if (!dataLine) throw new Error("yargi-mcp SSE: no data line in response");
+        json = JSON.parse(dataLine.slice(5).trim());
+    } else {
+        json = (await res.json()) as typeof json;
+    }
+    if (json.error) throw new Error(`yargi-mcp hata: ${json.error.message}`);
+    return json.result;
+}
+
+export const YARGI_MCP_TOOLS = [
+    {
+        type: "function",
+        function: {
+            name: "search_court_decisions",
+            description:
+                "Yargıtay, Danıştay ve diğer Türk yargı makamlarının kararlarını arayın. Anahtar kelime, konu, birim adı ve tarih aralığı ile filtreleyin. Gerçek, canlı veriye erişim sağlar.",
+            parameters: {
+                type: "object",
+                properties: {
+                    query: {
+                        type: "string",
+                        description: "Arama sorgusu veya anahtar kelimeler",
+                    },
+                    page_size: {
+                        type: "integer",
+                        description: "Sonuç sayısı (varsayılan: 10, maksimum: 50)",
+                    },
+                    birimAdi: {
+                        type: "string",
+                        description:
+                            "Birim/daire adı filtresi (örn: 'Yargıtay 9. Hukuk Dairesi', 'Danıştay 13. Daire')",
+                    },
+                    kararTarihiStart: {
+                        type: "string",
+                        description: "Başlangıç tarihi (YYYY-MM-DD)",
+                    },
+                    kararTarihiEnd: {
+                        type: "string",
+                        description: "Bitiş tarihi (YYYY-MM-DD)",
+                    },
+                },
+                required: ["query"],
+            },
+        },
+    },
+    {
+        type: "function",
+        function: {
+            name: "get_court_decision",
+            description:
+                "Bir Yargıtay/Danıştay kararının tam metnini getirin. search_court_decisions veya semantic_search_decisions ile bulunan documentId'yi kullanın.",
+            parameters: {
+                type: "object",
+                properties: {
+                    documentId: {
+                        type: "string",
+                        description:
+                            "Karar belge ID'si (arama sonucundaki documentId alanından)",
+                    },
+                },
+                required: ["documentId"],
+            },
+        },
+    },
+    {
+        type: "function",
+        function: {
+            name: "semantic_search_decisions",
+            description:
+                "Anlamsal (semantik) benzerlik ile Yargıtay/Danıştay kararı arayın. Anahtar kelime yerine doğal dil sorusu kullanın — benzer konudaki emsal kararları bulmak için idealdir.",
+            parameters: {
+                type: "object",
+                properties: {
+                    query: {
+                        type: "string",
+                        description:
+                            "Doğal dil arama sorgusu (örn: 'işçinin haklı nedenle iş sözleşmesini feshetmesi')",
+                    },
+                    limit: {
+                        type: "integer",
+                        description: "Sonuç sayısı (varsayılan: 10)",
+                    },
+                },
+                required: ["query"],
+            },
+        },
+    },
+    {
+        type: "function",
+        function: {
+            name: "search_legislation",
+            description:
+                "Türk mevzuatında (kanun, yönetmelik, tebliğ, KHK) arama yapın. Mevzuat adı, numarası veya içerik sorgusu ile arayın.",
+            parameters: {
+                type: "object",
+                properties: {
+                    query: {
+                        type: "string",
+                        description: "İçerik arama sorgusu",
+                    },
+                    mevzuat_adi: {
+                        type: "string",
+                        description: "Mevzuat adı (örn: 'İş Kanunu', '4857 Sayılı')",
+                    },
+                    mevzuat_no: {
+                        type: "string",
+                        description: "Mevzuat numarası (örn: '4857')",
+                    },
+                    page_size: {
+                        type: "integer",
+                        description: "Sonuç sayısı (varsayılan: 10)",
+                    },
+                },
+            },
+        },
+    },
+    {
+        type: "function",
+        function: {
+            name: "get_legislation",
+            description:
+                "Belirli bir kanun veya mevzuatın tam metnini getirin. search_legislation ile bulunan mevzuat_id'yi kullanın.",
+            parameters: {
+                type: "object",
+                properties: {
+                    mevzuat_id: {
+                        type: "string",
+                        description:
+                            "Mevzuat ID'si (search_legislation sonucundan)",
+                    },
+                    id_type: {
+                        type: "string",
+                        enum: ["mevzuat", "outline", "madde", "gerekce"],
+                        description: "ID tipi (varsayılan: mevzuat)",
+                    },
+                },
+                required: ["mevzuat_id"],
+            },
+        },
+    },
+    {
+        type: "function",
+        function: {
+            name: "search_within_legislation",
+            description:
+                "Belirli bir kanun veya yönetmelik içinde madde veya içerik arayın.",
+            parameters: {
+                type: "object",
+                properties: {
+                    mevzuat_id: {
+                        type: "string",
+                        description: "Mevzuat ID'si",
+                    },
+                    query: {
+                        type: "string",
+                        description: "Arama sorgusu",
+                    },
+                    page_size: {
+                        type: "integer",
+                        description: "Sonuç sayısı (varsayılan: 10)",
+                    },
+                },
+                required: ["mevzuat_id", "query"],
             },
         },
     },
@@ -2611,6 +2828,69 @@ export async function runToolCalls(
                 tool_call_id: tc.id,
                 content: JSON.stringify(toolResultPayload),
             });
+        } else if (
+            tc.function.name === "search_court_decisions" ||
+            tc.function.name === "get_court_decision" ||
+            tc.function.name === "semantic_search_decisions" ||
+            tc.function.name === "search_legislation" ||
+            tc.function.name === "get_legislation" ||
+            tc.function.name === "search_within_legislation"
+        ) {
+            write(
+                `data: ${JSON.stringify({ type: "tool_call_start", tool: tc.function.name })}\n\n`,
+            );
+            try {
+                let result: unknown;
+                if (tc.function.name === "search_court_decisions") {
+                    const input: Record<string, unknown> = {};
+                    if (args.query) input.phrase = args.query;
+                    if (args.page_size) input.page_size = args.page_size;
+                    if (args.birimAdi) input.birimAdi = args.birimAdi;
+                    if (args.kararTarihiStart) input.kararTarihiStart = args.kararTarihiStart;
+                    if (args.kararTarihiEnd) input.kararTarihiEnd = args.kararTarihiEnd;
+                    result = await callYargiMcp("search_bedesten_unified", input);
+                } else if (tc.function.name === "get_court_decision") {
+                    result = await callYargiMcp("get_bedesten_document_markdown", {
+                        documentId: args.documentId,
+                    });
+                } else if (tc.function.name === "semantic_search_decisions") {
+                    result = await callYargiMcp("search_bedesten_semantic", {
+                        query: args.query,
+                        limit: args.limit ?? 10,
+                    });
+                } else if (tc.function.name === "search_legislation") {
+                    const input: Record<string, unknown> = {};
+                    if (args.query) input.phrase = args.query;
+                    if (args.mevzuat_adi) input.mevzuat_adi = args.mevzuat_adi;
+                    if (args.mevzuat_no) input.mevzuat_no = args.mevzuat_no;
+                    if (args.page_size) input.page_size = args.page_size;
+                    result = await callYargiMcp("search_mevzuat", input);
+                } else if (tc.function.name === "get_legislation") {
+                    result = await callYargiMcp("get_mevzuat_document", {
+                        id: args.mevzuat_id,
+                        id_type: args.id_type ?? "mevzuat",
+                    });
+                } else {
+                    result = await callYargiMcp("search_within_mevzuat", {
+                        mevzuat_id: args.mevzuat_id,
+                        query: args.query,
+                        page_size: args.page_size ?? 10,
+                    });
+                }
+                toolResults.push({
+                    role: "tool",
+                    tool_call_id: tc.id,
+                    content: JSON.stringify(result),
+                });
+            } catch (err) {
+                toolResults.push({
+                    role: "tool",
+                    tool_call_id: tc.id,
+                    content: JSON.stringify({
+                        error: err instanceof Error ? err.message : String(err),
+                    }),
+                });
+            }
         }
     }
 
@@ -2744,9 +3024,10 @@ export async function runLLMStream(params: {
         apiKeys,
         projectId,
     } = params;
+    const yargiTools = process.env.YARGI_MCP_TOKEN ? YARGI_MCP_TOOLS : [];
     const activeTools = extraTools?.length
-        ? [...TOOLS, ...WORKFLOW_TOOLS, ...extraTools]
-        : [...TOOLS, ...WORKFLOW_TOOLS];
+        ? [...TOOLS, ...WORKFLOW_TOOLS, ...yargiTools, ...extraTools]
+        : [...TOOLS, ...WORKFLOW_TOOLS, ...yargiTools];
 
     // Extract system prompt; pass remaining turns to the adapter as
     // plain user/assistant messages.
