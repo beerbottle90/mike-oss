@@ -69,6 +69,14 @@ C:\Program Files\MikeOSS-ArthurLegal\frontend\standalone\.env.local
 
 Düzenledikten sonra masaüstü kısayolunu tekrar çalıştır (uygulama zaten açıksa önce kapat).
 
+**yargi-mcp-pro yasal veritabanı araması için** `backend\.env` dosyasına token ekle:
+
+```
+YARGI_MCP_TOKEN=token-değerin
+```
+
+Installer bu değeri sormaz. Token olmadan `/api/mcp/yargi/...` endpointleri çalışmaz.
+
 ---
 
 ### Sorun Giderme (Installer)
