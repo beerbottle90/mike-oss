@@ -73,6 +73,7 @@ async function callMcpTool(
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            Accept: "application/json, text/event-stream",
             Authorization: `Bearer ${MCP_TOKEN}`,
         },
         body: JSON.stringify(body),
@@ -82,10 +83,21 @@ async function callMcpTool(
         throw new Error(`yargi-mcp-pro ${res.status}: ${await res.text()}`);
     }
 
-    const json = (await res.json()) as {
-        result?: unknown;
-        error?: { message: string };
-    };
+    const contentType = res.headers.get("content-type") ?? "";
+    let json: { result?: unknown; error?: { message: string } };
+
+    if (contentType.includes("text/event-stream")) {
+        // SSE format: one or more "data: {...}" lines — find the JSON-RPC response line
+        const text = await res.text();
+        const dataLine = text
+            .split("\n")
+            .find((l) => l.startsWith("data:") && l.includes('"jsonrpc"'));
+        if (!dataLine) throw new Error("MCP SSE response contained no data line");
+        json = JSON.parse(dataLine.slice(5).trim());
+    } else {
+        json = (await res.json()) as typeof json;
+    }
+
     if (json.error) throw new Error(`MCP hata: ${json.error.message}`);
     return json.result;
 }
@@ -99,29 +111,52 @@ function handleError(res: Response, err: unknown) {
 // Mevzuat (Mevzuat Bilgi Sistemi)
 // ---------------------------------------------------------------------------
 
-/** POST /api/mcp/yargi/mevzuat/search — Mevzuat tam metin arama */
+/** POST /api/mcp/yargi/mevzuat/search — Mevzuat arama
+ *  Body: { query?, mevzuat_adi?, mevzuat_no?, mevzuat_tur_list?, page_size? }
+ *  query/phrase are aliases — whichever is provided is forwarded as `phrase`.
+ */
 router.post("/yargi/mevzuat/search", async (req: Request, res: Response) => {
     try {
-        const { query, limit = 10 } = req.body as {
-            query: string;
-            limit?: number;
+        const {
+            query,
+            phrase,
+            mevzuat_adi,
+            mevzuat_no,
+            mevzuat_tur_list,
+            page_size = 10,
+        } = req.body as {
+            query?: string;
+            phrase?: string;
+            mevzuat_adi?: string;
+            mevzuat_no?: string;
+            mevzuat_tur_list?: string[];
+            page_size?: number;
         };
-        const result = await callMcpTool("search_mevzuat", { query, limit });
+        const input: Record<string, unknown> = { page_size };
+        const p = phrase ?? query;
+        if (p) input.phrase = p;
+        if (mevzuat_adi) input.mevzuat_adi = mevzuat_adi;
+        if (mevzuat_no) input.mevzuat_no = mevzuat_no;
+        if (mevzuat_tur_list) input.mevzuat_tur_list = mevzuat_tur_list;
+        const result = await callMcpTool("search_mevzuat", input);
         res.json({ data: result });
     } catch (err) {
         handleError(res, err);
     }
 });
 
-/** POST /api/mcp/yargi/mevzuat/get — Kanun/madde metni al */
+/** POST /api/mcp/yargi/mevzuat/get — Kanun/madde metni al
+ *  Body: { id, id_type? }  (id = mevzuat_id — param name in tool is "id")
+ */
 router.post("/yargi/mevzuat/get", async (req: Request, res: Response) => {
     try {
-        const { mevzuat_id, id_type = "mevzuat" } = req.body as {
-            mevzuat_id: string;
+        const { id, mevzuat_id, id_type = "mevzuat" } = req.body as {
+            id?: string;
+            mevzuat_id?: string;
             id_type?: "mevzuat" | "outline" | "madde" | "gerekce";
         };
         const result = await callMcpTool("get_mevzuat_document", {
-            mevzuat_id,
+            id: id ?? mevzuat_id,
             id_type,
         });
         res.json({ data: result });
@@ -130,20 +165,22 @@ router.post("/yargi/mevzuat/get", async (req: Request, res: Response) => {
     }
 });
 
-/** POST /api/mcp/yargi/mevzuat/search-within — Belirli kanun içinde arama */
+/** POST /api/mcp/yargi/mevzuat/search-within — Belirli kanun içinde arama
+ *  Body: { mevzuat_id, query, page_size? }
+ */
 router.post(
     "/yargi/mevzuat/search-within",
     async (req: Request, res: Response) => {
         try {
-            const { mevzuat_id, query, limit = 10 } = req.body as {
+            const { mevzuat_id, query, page_size = 10 } = req.body as {
                 mevzuat_id: string;
                 query: string;
-                limit?: number;
+                page_size?: number;
             };
             const result = await callMcpTool("search_within_mevzuat", {
                 mevzuat_id,
                 query,
-                limit,
+                page_size,
             });
             res.json({ data: result });
         } catch (err) {
@@ -158,19 +195,37 @@ router.post(
 
 /**
  * POST /api/mcp/yargi/kararlar/search
- * institution örnekleri: "yargitay", "danistay", "anayasa", "kvkk", "rekabet"
+ * Body: { query/phrase, page_size?, court_types?, birimAdi?, kararTarihiStart?, kararTarihiEnd? }
+ * query and phrase are aliases — forwarded as `phrase` to the tool.
  */
 router.post(
     "/yargi/kararlar/search",
     async (req: Request, res: Response) => {
         try {
-            const { query, limit = 10, institution } = req.body as {
-                query: string;
-                limit?: number;
-                institution?: string;
+            const {
+                query,
+                phrase,
+                page_size = 10,
+                court_types,
+                birimAdi,
+                kararTarihiStart,
+                kararTarihiEnd,
+            } = req.body as {
+                query?: string;
+                phrase?: string;
+                page_size?: number;
+                court_types?: string[];
+                birimAdi?: string;
+                kararTarihiStart?: string;
+                kararTarihiEnd?: string;
             };
-            const input: Record<string, unknown> = { query, limit };
-            if (institution) input.institution = institution;
+            const input: Record<string, unknown> = { page_size };
+            const p = phrase ?? query;
+            if (p) input.phrase = p;
+            if (court_types) input.court_types = court_types;
+            if (birimAdi) input.birimAdi = birimAdi;
+            if (kararTarihiStart) input.kararTarihiStart = kararTarihiStart;
+            if (kararTarihiEnd) input.kararTarihiEnd = kararTarihiEnd;
             const result = await callMcpTool("search_bedesten_unified", input);
             res.json({ data: result });
         } catch (err) {
@@ -179,12 +234,17 @@ router.post(
     },
 );
 
-/** POST /api/mcp/yargi/kararlar/get — Karar tam metni */
+/** POST /api/mcp/yargi/kararlar/get — Karar tam metni
+ *  Body: { documentId }  (not document_url — tool param is documentId)
+ */
 router.post("/yargi/kararlar/get", async (req: Request, res: Response) => {
     try {
-        const { document_url } = req.body as { document_url: string };
+        const { documentId, document_url } = req.body as {
+            documentId?: string;
+            document_url?: string;
+        };
         const result = await callMcpTool("get_bedesten_document_markdown", {
-            document_url,
+            documentId: documentId ?? document_url,
         });
         res.json({ data: result });
     } catch (err) {
@@ -214,135 +274,26 @@ router.post(
 
 // ---------------------------------------------------------------------------
 // Kurum Bazlı Arama
+// Bu endpoint'ler mevcut token ile aktif değil.
+// search_bedesten_unified veya search_bedesten_semantic kullanın.
 // ---------------------------------------------------------------------------
 
-/** POST /api/mcp/yargi/anayasa/search — Anayasa Mahkemesi kararları */
-router.post(
-    "/yargi/anayasa/search",
-    async (req: Request, res: Response) => {
-        try {
-            const { query, limit = 10 } = req.body as {
-                query: string;
-                limit?: number;
-            };
-            const result = await callMcpTool("search_anayasa_unified", {
-                query,
-                limit,
-            });
-            res.json({ data: result });
-        } catch (err) {
-            handleError(res, err);
-        }
-    },
-);
-
-/** POST /api/mcp/yargi/rekabet/search — Rekabet Kurumu kararları */
-router.post(
-    "/yargi/rekabet/search",
-    async (req: Request, res: Response) => {
-        try {
-            const { query, limit = 10 } = req.body as {
-                query: string;
-                limit?: number;
-            };
-            const result = await callMcpTool(
-                "search_rekabet_kurumu_decisions",
-                { query, limit },
-            );
-            res.json({ data: result });
-        } catch (err) {
-            handleError(res, err);
-        }
-    },
-);
-
-/** POST /api/mcp/yargi/kvkk/search — KVKK Kurul kararları */
-router.post("/yargi/kvkk/search", async (req: Request, res: Response) => {
-    try {
-        const { query, limit = 10 } = req.body as {
-            query: string;
-            limit?: number;
-        };
-        const result = await callMcpTool("search_kvkk_decisions", {
-            query,
-            limit,
+function notAvailable(institution: string) {
+    return (_req: Request, res: Response) => {
+        res.status(501).json({
+            error: `${institution} kurum araması bu token ile kullanılamaz. ` +
+                   "Bunun yerine /api/mcp/yargi/kararlar/search veya /kararlar/semantic kullanın.",
         });
-        res.json({ data: result });
-    } catch (err) {
-        handleError(res, err);
-    }
-});
+    };
+}
 
-/** POST /api/mcp/yargi/bddk/search — BDDK Kurul kararları */
-router.post("/yargi/bddk/search", async (req: Request, res: Response) => {
-    try {
-        const { query, limit = 10 } = req.body as {
-            query: string;
-            limit?: number;
-        };
-        const result = await callMcpTool("search_bddk_decisions", {
-            query,
-            limit,
-        });
-        res.json({ data: result });
-    } catch (err) {
-        handleError(res, err);
-    }
-});
-
-/** POST /api/mcp/yargi/gib/search — GİB Özelgeleri */
-router.post("/yargi/gib/search", async (req: Request, res: Response) => {
-    try {
-        const { query, limit = 10 } = req.body as {
-            query: string;
-            limit?: number;
-        };
-        const result = await callMcpTool("search_gib_ozelge", {
-            query,
-            limit,
-        });
-        res.json({ data: result });
-    } catch (err) {
-        handleError(res, err);
-    }
-});
-
-/** POST /api/mcp/yargi/kik/search — KİK İhale Kararları */
-router.post("/yargi/kik/search", async (req: Request, res: Response) => {
-    try {
-        const { query, limit = 10 } = req.body as {
-            query: string;
-            limit?: number;
-        };
-        const result = await callMcpTool("search_kik_v2_decisions", {
-            query,
-            limit,
-        });
-        res.json({ data: result });
-    } catch (err) {
-        handleError(res, err);
-    }
-});
-
-/** POST /api/mcp/yargi/sayistay/search — Sayıştay kararları */
-router.post(
-    "/yargi/sayistay/search",
-    async (req: Request, res: Response) => {
-        try {
-            const { query, limit = 10 } = req.body as {
-                query: string;
-                limit?: number;
-            };
-            const result = await callMcpTool("search_sayistay_unified", {
-                query,
-                limit,
-            });
-            res.json({ data: result });
-        } catch (err) {
-            handleError(res, err);
-        }
-    },
-);
+router.post("/yargi/anayasa/search",  notAvailable("Anayasa Mahkemesi"));
+router.post("/yargi/rekabet/search",  notAvailable("Rekabet Kurumu"));
+router.post("/yargi/kvkk/search",     notAvailable("KVKK"));
+router.post("/yargi/bddk/search",     notAvailable("BDDK"));
+router.post("/yargi/gib/search",      notAvailable("GİB"));
+router.post("/yargi/kik/search",      notAvailable("KİK"));
+router.post("/yargi/sayistay/search", notAvailable("Sayıştay"));
 
 // ---------------------------------------------------------------------------
 // Yardımcı Araçlar
@@ -361,11 +312,11 @@ router.post(
     },
 );
 
-/** POST /api/mcp/yargi/health — Hükümet sunucuları sağlık kontrolü */
+/** POST /api/mcp/yargi/health — Bağlantı sağlık kontrolü (research-guide üzerinden) */
 router.post("/yargi/health", async (_req: Request, res: Response) => {
     try {
-        const result = await callMcpTool("check_government_servers_health", {});
-        res.json({ data: result });
+        await callMcpTool("legal_research_guide", {});
+        res.json({ ok: true, status: "yargi-mcp-pro reachable" });
     } catch (err) {
         handleError(res, err);
     }
