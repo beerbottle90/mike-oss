@@ -775,6 +775,18 @@ export function useAssistantChat({
                             continue;
                         }
 
+                        if (data.type === "error") {
+                            clearStreamingPlaceholders();
+                            finalizeStreamingContent();
+                            finalizeStreamingReasoning();
+                            const errMsg =
+                                typeof data.message === "string"
+                                    ? data.message
+                                    : "Bir hata oluştu.";
+                            pushEvent({ type: "content", text: errMsg });
+                            continue;
+                        }
+
                         if (data.type === "citations") {
                             // End-of-stream signal — scrub any lingering
                             // placeholders so they don't persist into the
@@ -807,6 +819,7 @@ export function useAssistantChat({
 
             flushDrip();
             finalizeStreamingReasoning();
+            clearStreamingPlaceholders();
             setIsResponseLoading(false);
             setIsLoadingCitations(false);
 

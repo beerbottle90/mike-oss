@@ -5,6 +5,16 @@ Versioning: [Semantic Versioning 2.0](https://semver.org/).
 
 ---
 
+## [2.0.4] — 2026-06-07 — *Frontend Streaming Fix + Dependency Patch*
+
+### Fixed
+
+- **Blank assistant response (stuck thinking spinner)**: After a reasoning block ended, `clearStreamingPlaceholders()` was never called when the stream finished — leaving the "Thinking…" spinner visible with no text. Fixed by calling it in the stream cleanup path in `useAssistantChat.ts`.
+- **Backend `error` events silently ignored**: When the backend caught an exception and sent `{ type: "error", message: "..." }` over SSE, the frontend had no handler for this event type and simply dropped it, resulting in an empty message bubble. Added handler that displays the error text to the user.
+- **Missing `@modelcontextprotocol/sdk` dependency**: `@google/genai` declares a peer dependency on `@modelcontextprotocol/sdk` which was not installed. With `skipLibCheck: false`, VS Code's language server flagged this with a red error indicator. Added to `backend/package.json` dependencies.
+
+---
+
 ## [2.0.3] — 2026-06-07 — *yargi-mcp Proxy Full Fix*
 
 ### Fixed

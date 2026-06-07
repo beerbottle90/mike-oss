@@ -5,6 +5,16 @@ Semver: [Semantic Versioning 2.0](https://semver.org/lang/tr/).
 
 ---
 
+## [2.0.4] — 2026-06-07 — *Frontend Streaming Düzeltmesi + Bağımlılık Yaması*
+
+### Düzeltildi
+
+- **Boş asistan yanıtı (takılı düşünüyor spinner'ı)**: Reasoning bloğu bittiğinde stream kapandıktan sonra `clearStreamingPlaceholders()` hiç çağrılmıyordu. Sonuç: "Düşünüyor…" spinner'ı kalıcı görünüyor, yanıt boş çıkıyordu. `useAssistantChat.ts` içinde stream temizleme adımına eklendi.
+- **Backend `error` eventleri sessizce yoksayılıyordu**: Backend bir hata yakalayıp SSE üzerinden `{ type: "error", message: "..." }` gönderdiğinde frontend'de bu event tipi için hiç handler yoktu — mesaj balonu boş kalıyordu. Hata metnini kullanıcıya gösteren handler eklendi.
+- **`@modelcontextprotocol/sdk` bağımlılığı eksikti**: `@google/genai` paketi bu pakete peer dependency bildiriyor ancak yüklü değildi. VS Code language server kırmızı hata gösteriyordu. `backend/package.json`'a eklendi.
+
+---
+
 ## [2.0.3] — 2026-06-07 — *yargi-mcp Proxy Tam Düzeltme*
 
 ### Düzeltildi
