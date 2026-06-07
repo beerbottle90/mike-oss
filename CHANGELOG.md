@@ -5,11 +5,20 @@ Versioning: [Semantic Versioning 2.0](https://semver.org/).
 
 ---
 
-## [2.0.3] — 2026-06-07 — *yargi-mcp Router Fix*
+## [2.0.3] — 2026-06-07 — *yargi-mcp Proxy Full Fix*
 
 ### Fixed
 
-- **yargi-mcp proxy unreachable**: `mcp-proxy.arthurlegal.ts` was written but never imported or mounted in `index.ts` — all `/api/mcp/yargi/...` endpoints returned 404. Fixed by adding the import and `app.use("/api/mcp", yargiMcpRouter)`.
+- **yargi-mcp proxy unreachable (404)**: `mcp-proxy.arthurlegal.ts` was written but never imported or mounted in `index.ts`. Fixed by adding the import and `app.use("/api/mcp", yargiMcpRouter)`.
+- **406 Not Acceptable**: added `Accept: application/json, text/event-stream` header — yargi-mcp-pro requires both media types; without it every request returned 406.
+- **SSE response parsing**: yargi-mcp-pro returns responses as Server-Sent Events (`text/event-stream`). Proxy now extracts the `data:` line and parses it as JSON-RPC instead of calling `res.json()` on the raw stream.
+- **Wrong parameter names** — corrected to match actual tool schemas:
+  - `search_mevzuat` / `search_bedesten_unified`: `query` → `phrase` (Solr-style operators supported)
+  - `get_mevzuat_document`: `mevzuat_id` → `id` (backward-compat alias kept)
+  - `get_bedesten_document_markdown`: `document_url` → `documentId` (backward-compat alias kept)
+  - `search_within_mevzuat`: `limit` → `page_size`
+- **Institution-specific routes** (anayasa, rekabet, kvkk, bddk, gib, kik, sayistay): return **501** with a clear message instead of an opaque 500 — these tools are not in the standard token scope.
+- **Health endpoint**: now pings `legal_research_guide` instead of the unavailable `check_government_servers_health` tool.
 - **TypeScript not installed locally**: `npm run build` failed without a global `tsc`. Added `typescript` as a devDependency in `backend/package.json`.
 
 ---

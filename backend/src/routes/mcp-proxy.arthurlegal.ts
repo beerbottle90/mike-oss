@@ -1,42 +1,32 @@
 /**
- * mike-oss × ArthurLegal v2.0.0 — yargi-mcp-pro Proxy Router
+ * mike-oss × ArthurLegal v2.0.3 — yargi-mcp-pro Proxy Router
  *
- * Kurulum:
- *   1. backend/src/routes/ altına bu dosyayı kopyala
- *   2. backend/src/index.ts'e router'ı ekle:
- *        import yargiMcpRouter from "./routes/mcp-proxy.arthurlegal";
- *        app.use("/api/mcp", yargiMcpRouter);
- *   3. backend/.env dosyasına ekle:
- *        YARGI_MCP_ENDPOINT=https://yargi-mcp-pro-production.up.railway.app/mcp
- *        YARGI_MCP_TOKEN=<OAuth access token>
+ * Env:
+ *   YARGI_MCP_ENDPOINT  (default: https://yargi-mcp-pro-production.up.railway.app/mcp)
+ *   YARGI_MCP_TOKEN     Bearer token — required; without it all routes return 500.
  *
- * Endpoint haritası (15 endpoint — ArthurLegal v1.2.0 tam kapsam):
+ * Active endpoints (8 — standard token scope):
  *
  *   Mevzuat:
- *     POST /api/mcp/yargi/mevzuat/search         → search_mevzuat
- *     POST /api/mcp/yargi/mevzuat/get            → get_mevzuat_document
- *     POST /api/mcp/yargi/mevzuat/search-within  → search_within_mevzuat
+ *     POST /api/mcp/yargi/mevzuat/search         → search_mevzuat        (phrase/mevzuat_adi/mevzuat_no)
+ *     POST /api/mcp/yargi/mevzuat/get            → get_mevzuat_document  (id, id_type)
+ *     POST /api/mcp/yargi/mevzuat/search-within  → search_within_mevzuat (mevzuat_id, query)
  *
- *   Kararlar (Genel):
- *     POST /api/mcp/yargi/kararlar/search        → search_bedesten_unified
- *     POST /api/mcp/yargi/kararlar/get           → get_bedesten_document_markdown
- *     POST /api/mcp/yargi/kararlar/semantic      → search_bedesten_semantic
- *
- *   Kurum Bazlı Arama:
- *     POST /api/mcp/yargi/anayasa/search         → search_anayasa_unified
- *     POST /api/mcp/yargi/rekabet/search         → search_rekabet_kurumu_decisions
- *     POST /api/mcp/yargi/kvkk/search            → search_kvkk_decisions
- *     POST /api/mcp/yargi/bddk/search            → search_bddk_decisions
- *     POST /api/mcp/yargi/gib/search             → search_gib_ozelge
- *     POST /api/mcp/yargi/kik/search             → search_kik_v2_decisions
- *     POST /api/mcp/yargi/sayistay/search        → search_sayistay_unified
+ *   Kararlar (Yargıtay + Danıştay):
+ *     POST /api/mcp/yargi/kararlar/search        → search_bedesten_unified   (phrase, page_size, birimAdi, …)
+ *     POST /api/mcp/yargi/kararlar/get           → get_bedesten_document_markdown (documentId)
+ *     POST /api/mcp/yargi/kararlar/semantic      → search_bedesten_semantic  (query, limit)
  *
  *   Yardımcı:
- *     POST /api/mcp/yargi/research-guide         → legal_research_guide
- *     POST /api/mcp/yargi/health                 → check_government_servers_health
+ *     POST /api/mcp/yargi/research-guide         → legal_research_guide  (no params)
+ *     POST /api/mcp/yargi/health                 → legal_research_guide ping
  *
- * Kaynak: ArthurLegal v1.2.0 — yargi-mcp-rehberi.md
- * https://github.com/beerbottle90/ArthurLegal
+ * Unavailable with standard token (return 501):
+ *   /yargi/anayasa/search  /yargi/rekabet/search  /yargi/kvkk/search
+ *   /yargi/bddk/search     /yargi/gib/search      /yargi/kik/search  /yargi/sayistay/search
+ *
+ * Note: yargi-mcp-pro returns SSE (text/event-stream). This proxy extracts the
+ * JSON-RPC result from the `data:` line before forwarding to the caller as plain JSON.
  */
 
 import { Router, type Request, type Response } from "express";

@@ -5,12 +5,21 @@ Semver: [Semantic Versioning 2.0](https://semver.org/lang/tr/).
 
 ---
 
-## [2.0.3] — 2026-06-07 — *yargi-mcp Router Düzeltmesi*
+## [2.0.3] — 2026-06-07 — *yargi-mcp Proxy Tam Düzeltme*
 
 ### Düzeltildi
 
-- **yargi-mcp proxy erişilemiyor**: `mcp-proxy.arthurlegal.ts` router yazılmıştı ancak `backend/src/index.ts`'e hiç eklenmemişti — tüm `/api/mcp/yargi/...` endpointleri 404 döndürüyordu. Import ve `app.use("/api/mcp", yargiMcpRouter)` eklenerek düzeltildi.
-- **TypeScript yerel kurulu değildi**: `npm run build` global `tsc` olmadan başarısız oluyordu. `typescript` devDependency olarak eklendi.
+- **yargi-mcp proxy erişilemiyor (404)**: `mcp-proxy.arthurlegal.ts` router `index.ts`'e eklenmemişti. Import ve `app.use("/api/mcp", yargiMcpRouter)` eklenerek düzeltildi.
+- **406 Not Acceptable**: `Accept: application/json, text/event-stream` header'ı eklendi — yargi-mcp-pro her iki media type'ı zorunlu kılıyor.
+- **SSE yanıt parsing**: yargi-mcp-pro SSE (`text/event-stream`) formatında yanıt dönüyor. Proxy artık `data:` satırını çıkarıp JSON-RPC olarak parse ediyor.
+- **Yanlış parametre isimleri** — gerçek tool şemalarına göre düzeltildi:
+  - `search_mevzuat` / `search_bedesten_unified`: `query` → `phrase`
+  - `get_mevzuat_document`: `mevzuat_id` → `id` (geriye dönük alias korundu)
+  - `get_bedesten_document_markdown`: `document_url` → `documentId` (alias korundu)
+  - `search_within_mevzuat`: `limit` → `page_size`
+- **Kurum route'ları** (anayasa, rekabet, kvkk, bddk, gib, kik, sayistay): opak 500 yerine **501** + açıklayıcı mesaj döndürüyor (standart token kapsamında değil).
+- **Health endpoint**: mevcut olmayan `check_government_servers_health` yerine `legal_research_guide` ping'i kullanıyor.
+- **TypeScript yerel kurulu değildi**: `typescript` devDependency olarak eklendi.
 
 ---
 

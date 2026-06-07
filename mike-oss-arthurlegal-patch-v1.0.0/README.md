@@ -44,7 +44,7 @@ Kurulum biter, masaüstü kısayolu oluşur. Çift tıkla → uygulama açılır
 
 - **17 workflow** — NDA triaj, KVKK DSAR, M&A kapanış, istihdam, DPIA, marka, icra, enerji, ceza savunma ve daha fazlası
 - **22 tabular review kolonu** — Türk ve uluslararası hukuk (English Law, New York Law, AB, KVKK, tahkim, rekabet, IP, enerji, vergi)
-- **15 MCP endpoint** — Mevzuat, Yargıtay, Danıştay, AYM, Rekabet, KVKK, BDDK, GİB, KİK, Sayıştay *(opsiyonel token gerektirir)*
+- **8 aktif MCP endpoint** — mevzuat arama/get, Yargıtay+Danıştay anahtar kelime & semantik arama, karar tam metni, araştırma rehberi *(YARGI_MCP_TOKEN gerektirir; AYM/Rekabet/KVKK/BDDK/GİB/KİK/Sayıştay için genişletilmiş token gerekli)*
 - **13 Türk hukuku pratik alanı**
 
 ---

@@ -59,6 +59,14 @@ If you need to change any values later, edit:
 
 Then restart the app via the desktop shortcut.
 
+**To enable yargi-mcp-pro legal database search**, add your token to `backend\.env`:
+
+```
+YARGI_MCP_TOKEN=your-token-here
+```
+
+The installer does not collect this value. Without it, `/api/mcp/yargi/...` endpoints are unreachable.
+
 ### Troubleshooting (Installer)
 
 **"Failed to save API Key" in Account Settings**
@@ -158,7 +166,7 @@ This fork adds Turkish law intelligence from [ArthurLegal v1.2.0](https://github
 
 - **17 workflows** — NDA triage, KVKK DSAR, M&A closing, employment, DPIA, trademark, litigation, energy, criminal defense, and more
 - **22 tabular review presets** — Turkish and international law (English Law, New York Law, EU, KVKK, arbitration, competition, IP, energy, tax)
-- **15 MCP proxy endpoints** (`/api/mcp/yargi/...`) — Mevzuat, Yargitay, Danistay, AYM, Rekabet, KVKK, BDDK, GIB, KIK, Sayistay
+- **8 active MCP proxy endpoints** (`/api/mcp/yargi/...`) — mevzuat search/get/search-within, Yargıtay+Danıştay keyword & semantic search, document fetch, research guide *(requires `YARGI_MCP_TOKEN` in `backend/.env`; 7 institution-specific routes — AYM, Rekabet, KVKK, BDDK, GİB, KİK, Sayıştay — require an extended token and return 501 otherwise)*
 - **13 Turkish practice areas** in the practice area picker
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
